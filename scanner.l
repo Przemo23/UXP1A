@@ -1,6 +1,6 @@
 /* just like Unix wc */
 %{
-  #include "fb1-1.tab.h"
+  #include "parser.h"
   /*
   enum yytokentype {
     REDIRECTION_IN = 258;

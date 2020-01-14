@@ -1,5 +1,8 @@
 %{
 #include <stdio.h>
+int yylex();
+void yyerror(const char *s);
+
 %}
 
 /*TOKENS*/
@@ -17,7 +20,6 @@ full_command: command NEWLINE{} {printf("command called \n");}
 
 command:built_in_operation {printf("built_in_operation called \n");}
   | built_in_operation PIPE pipe {printf("built_in_operation with pipe called \n");}
-  
 
 pipe: external_call {printf("external_call called \n");}
   | external_call PIPE pipe {printf("external_call with pipe called \n");}
@@ -59,9 +61,9 @@ assignment: VARNAME EQUALS text
 text: VARNAME {printf("VARNAME \n");}
   | STRING {printf("STRING \n" );}
 %%
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-
+	printf("tutaj mozna napisac obsluge shella\n");
   yyparse();
 
 }
