@@ -20,6 +20,7 @@ full_command: command NEWLINE{} {printf("command called \n");}
 
 command:built_in_operation {printf("built_in_operation called \n");}
   | built_in_operation PIPE pipe {printf("built_in_operation with pipe called \n");}
+  | pipe {printf("pipe called \n");}
 
 pipe: external_call {printf("external_call called \n");}
   | external_call PIPE pipe {printf("external_call with pipe called \n");}
