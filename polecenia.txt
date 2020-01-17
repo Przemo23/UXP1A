@@ -1,0 +1,27 @@
+cd .
+cd ..
+cd /home/
+cd ~
+pwd
+zmienna=wartosc
+export zmienna
+echo "string"
+export
+
+
+a=wd
+p$a
+
+echo '$elo'
+echo $?
+a=1 echo $a
+echo a pwd
+
+./a ; ./b
+cd .. ; pwd
+
+ls > out.txt
+./a > out.txt
+./a | ./b
+
+`cat plik.txt` > file.out
