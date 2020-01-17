@@ -62,12 +62,6 @@ assignment: VARNAME EQUALS text
 text: VARNAME {printf("VARNAME \n");}
   | STRING {printf("STRING \n" );}
 %%
-int main(int argc, char **argv)
-{
-	printf("tutaj mozna napisac obsluge shella\n");
-  yyparse();
-
-}
 void yyerror (char const *s) {
    fprintf (stderr, "%s\n", s);
  }
