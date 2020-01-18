@@ -13,6 +13,7 @@
 
 #define LOG_VERSION "0.1.0"
 #define LOG_USE_COLOR
+#define OUTPUT_STREAM stdout
 
 typedef void (*log_LockFn)(void *udata, int lock);
 
