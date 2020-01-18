@@ -10,7 +10,7 @@
 typedef struct node {
     struct node *next;
     char name[MAX_VAR_NAME_LEN];    // nazwa zmiennej
-    char data[MAX_VAR_DATA_LEN];  // zawartosc zmiennej
+    char value[MAX_VAR_DATA_LEN];  // zawartosc zmiennej
 
 } Node;
 

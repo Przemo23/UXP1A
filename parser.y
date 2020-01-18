@@ -63,5 +63,5 @@ text: VARNAME {printf("VARNAME \n");}
   | STRING {printf("STRING \n" );}
 %%
 void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
+   printf ("%s\n", s);
  }

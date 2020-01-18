@@ -22,12 +22,12 @@ int list_add(char *name, char *d) {
     }
 
     strncpy(tmp->name, name, MAX_VAR_NAME_LEN);
-    strncpy(tmp->data, d, MAX_VAR_DATA_LEN);
+    strncpy(tmp->value, d, MAX_VAR_DATA_LEN);
 
     tmp->next = head;
     head = tmp;
 
-    log_trace("Ustawiono zmienna %s na wartość %s", head->name, head->data);
+    log_trace("Ustawiono zmienna %s na wartość %s", head->name, head->value);
 
     return SUCCESS;
 }
@@ -36,7 +36,7 @@ void list_print() {
     struct node *tmp = head;
 
     while (tmp) {
-        printf("%s  %s\n", tmp->name, tmp->data);
+        printf("%s  %s\n", tmp->name, tmp->value);
         tmp = tmp->next;
     }
 }
@@ -100,7 +100,7 @@ int list_change(char *name, char *d) {
     if (tmp == NULL || d == NULL)
         return FAILURE;
 
-    strncpy(tmp->data, d, MAX_VAR_DATA_LEN);
+    strncpy(tmp->value, d, MAX_VAR_DATA_LEN);
 
     return SUCCESS;
 }
@@ -108,9 +108,8 @@ int list_change(char *name, char *d) {
 char *get_variable(char *name) {
     struct node *tmp = list_find(name);
     if (tmp != NULL)
-        return tmp->data;
+        return tmp->value;
     else {
-        printf(ANSI_FG_RED "cannot get variable\n" ANSI_RESET);
         return "";
     }
 }
