@@ -12,6 +12,7 @@
 #include <stdarg.h>
 
 #define LOG_VERSION "0.1.0"
+#define LOG_USE_COLOR
 
 typedef void (*log_LockFn)(void *udata, int lock);
 

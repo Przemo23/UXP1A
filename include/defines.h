@@ -10,8 +10,16 @@
 
 #define MAX_USER_LEN 128
 #define MAX_HOST_LEN 128
-#define MAX_PROMPT_LEN 255
 
 #define MAX_ARG_LEN 100
+
+#define ANSI_RESET          "\x1b[0m"
+#define ANSI_BOLD           "\033[1m"
+#define ANSI_FG_GREEN       "\x1b[32m"
+#define ANSI_FG_RED         "\x1b[31;1m"
+#define ANSI_FG_YELLOW      "\x1b[33;1m"
+#define ANSI_FG_CYAN        "\x1b[36;1m"
+#define ANSI_FG_BLUE        "\x1b[34m"
+#define ANSI_FG_MAGENTA     "\x1b[35m"
 
 #endif //UXP1A_DEFINES_H

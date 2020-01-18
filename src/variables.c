@@ -6,6 +6,7 @@
 #include <memory.h>
 #include <builtins.h>
 #include "variables.h"
+#include "defines.h"
 
 int list_add(char *name, char *d) {
     if (list_find(name) != NULL || d == NULL) {
@@ -109,14 +110,14 @@ char *get_variable(char *name) {
     if (tmp != NULL)
         return tmp->data;
     else {
-        printf(ANSI_COLOR_RED "cannot get variable\n" ANSI_COLOR_RESET);
+        printf(ANSI_FG_RED "cannot get variable\n" ANSI_RESET);
         return "";
     }
 }
 
 int set_variable(char *name, char *data) {
     if (strcmp(name, "USER") == 0 || strcmp(name, "CWD") == 0) {
-        printf(ANSI_COLOR_RED "cannot overwrite %s\n" ANSI_COLOR_RESET, name);
+        printf(ANSI_FG_RED "cannot overwrite %s\n" ANSI_RESET, name);
         return FAILURE;
     }
 

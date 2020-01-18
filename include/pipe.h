@@ -30,6 +30,7 @@ typedef struct proc {
     char paused;            // jezeli proces zatrzymany to 1
     int status;
 } Proc;
+
 // pipe jest potokiem procesow
 typedef struct pipe {
     struct pipe *next;     // nastepny aktywny pipe
@@ -45,6 +46,7 @@ typedef struct pipe {
     int stdout;
     int stderr;
 } Pipe;
+
 Pipe *firstGroup;
 
 Pipe *findPipe(pid_t pgid);

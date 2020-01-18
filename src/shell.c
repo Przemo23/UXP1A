@@ -129,25 +129,21 @@ return NULL;*/
 
 void print_prompt() {
 
-    char prompt[MAX_PROMPT_LEN];
 
-    strcpy(prompt, user);
-    strcpy(prompt + strlen(prompt), "@");
-    strcpy(prompt + strlen(prompt) , host);
-    strcpy(prompt + strlen(prompt) , ":");
+    printf(ANSI_BOLD ANSI_FG_GREEN "%s@%s" ANSI_RESET, user, host);
+    printf(":");
 
     char *homeDir = get_variable("HOME");
     char curPath[PATH_MAX];
     getcwd(curPath, PATH_MAX);
 
-
+    printf(ANSI_FG_BLUE ANSI_BOLD);
     if (strstr(curPath, homeDir) != NULL) {
-        strcpy(prompt + strlen(prompt), "~");
-        strcpy(prompt + strlen(prompt), curPath + strlen(homeDir));
-        strcpy(prompt + strlen(prompt), "$");
+        printf( "~");
+        printf("%s", curPath + strlen(homeDir));
     } else {
-        strcpy(prompt + strlen(prompt), curPath);
-        strcpy(prompt + strlen(prompt), "$");
+        printf("%s", curPath);
     }
-    printf("%s ", prompt);
+    printf(ANSI_RESET);
+    printf( "$ ");
 }
