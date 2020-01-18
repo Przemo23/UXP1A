@@ -2,6 +2,7 @@
 // Created by maciej on 17.01.2020.
 //
 
+#include <log.h>
 #include "shell.h"
 
 extern int yyparse();
@@ -14,13 +15,19 @@ extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 int main(int argc, char **argv, char *envp[]) {
+
+    log_trace("Inicjalizacja shell'a");
     initShell();
 
     while(1) {
-        printf("> ");
+        print_prompt();
         char *line = NULL;
         size_t n;
         getline(&line, &n, stdin);
+
+        // TODO w tym miejscu trzeba preprocesowac polecenia
+        // miedzy innymi trzeba obluzyc ` ; oraz podstawienia zmiennych
+
         YY_BUFFER_STATE buffer = yy_scan_string(line);
 
         yyparse();

@@ -2,101 +2,11 @@
 // Created by maciej on 17.01.2020.
 //
 
+#include <log.h>
 #include "builtins.h"
+#include "variables.h"
+#include "shell.h"
 
-
-int list_add(char *name, int m, char *d) {
-    if (list_find(name) != NULL || d == NULL || m < 0 || m > 1)
-        return FAILURE;
-
-    Node *tmp = (Node *) malloc(sizeof(Node));
-
-    if (tmp == NULL)      // brak pamieci
-        return FAILURE;
-
-    strcpy(tmp->var.name, name);
-    tmp->var.mode = m;
-    strcpy(tmp->var.data, d);
-
-    tmp->next = head;
-    head = tmp;
-
-    return SUCCESS;
-}
-
-void list_print() {
-    Node *tmp = head;
-
-    while (tmp) {
-        printf("%s  %s\n", tmp->var.name, tmp->var.data);
-        tmp = tmp->next;
-    }
-}
-
-Node *list_find(char *name) {
-    if (name == NULL)
-        return NULL;
-
-    Node *tmp = head;
-
-    while (tmp) {
-        if (strcmp(tmp->var.name, name) == 0)
-            return tmp;
-        tmp = tmp->next;
-    }
-    return NULL;
-}
-
-// nalezy w argumencie podac wskaznik na head
-void list_removeAll(Node *tmp) {
-    if (tmp == NULL)
-        return;
-
-    list_removeAll(tmp->next);
-
-    if (head == tmp)
-        head = NULL;
-
-    free(tmp);
-}
-
-int list_remove(char *name) {
-    if (name == NULL || head == NULL)
-        return FAILURE;
-
-    Node *tmp = head;
-    Node *toRem;
-
-    if (strcmp(tmp->var.name, name) == 0) {
-        head = tmp->next;
-        free(tmp);
-        return SUCCESS;
-    }
-
-    while (tmp->next) {
-        if (strcmp(tmp->next->var.name, name) == 0) {
-
-            toRem = tmp->next;
-            tmp->next = tmp->next->next;
-            free(toRem);
-            return SUCCESS;
-        }
-        tmp = tmp->next;
-    }
-    return FAILURE;
-}
-
-int list_change(char *name, int m, char *d) {
-    Node *tmp = list_find(name);
-
-    if (tmp == NULL || d == NULL || m < 0 || m > 1)
-        return FAILURE;
-
-    strcpy(tmp->var.data, d);
-    tmp->var.mode = m;
-
-    return SUCCESS;
-}
 
 int do_pwd() {
     char *cwd;
@@ -125,7 +35,6 @@ int do_cd(char *fileDir) {
         fprintf(stderr, ANSI_COLOR_RED "cd erorr\n" ANSI_COLOR_RESET);
         return FAILURE;
     }
-    return SUCCESS;
 }
 
 
@@ -260,72 +169,4 @@ void do_echo(char *buf) {
         printf("%s\n", buf);
 }
 
-int init_variable() {
-    // pobiera strukture reprezentujaca uzytkownika o podanym UID
-    struct passwd *pass = getpwuid(getuid());
-    // pobranie nazwy użytkownika
-    strcpy(user, pass->pw_name);
-    // pobiera sieciowa nazwe komputera
-    gethostname(computer, 128);
-
-    char *var[4] = {"PATH", "HOME", "USER", "PWD"};     // PS1 u mnie nie dziala
-    int i;
-    for (i = 0; i < 4; i++)
-        list_add(var[i], 0, getenv(var[i]));
-
-    refresh_prompt();
-
-    return SUCCESS;
-}
-
-void refresh_prompt() {
-    strcpy(commandPrompt, user);
-    strcpy(commandPrompt + strlen(user), "@");
-    strcpy(commandPrompt + strlen(user) + 1, computer);
-    strcpy(commandPrompt + strlen(user) + 1 + strlen(computer), ":");
-
-    char *homeDir = get_variable("HOME");
-    char curPath[128];
-    getcwd(curPath, 128);
-
-
-    if (strstr(curPath, homeDir) != NULL) {
-        strcpy(commandPrompt + strlen(commandPrompt), "~");
-        strcpy(commandPrompt + strlen(commandPrompt), curPath + strlen(homeDir));
-        strcpy(commandPrompt + strlen(commandPrompt), "$");
-    } else {
-        strcpy(commandPrompt + strlen(user) + 3 + strlen(computer), curPath);
-        strcpy(commandPrompt + strlen(commandPrompt), "$");
-    }
-}
-
-char *get_variable(char *name) {
-    Node *tmp = list_find(name);
-    if (tmp != NULL)
-        return tmp->var.data;
-    else {
-        printf(ANSI_COLOR_RED "cannot get variable\n" ANSI_COLOR_RESET);
-        return "";
-    }
-}
-
-int set_variable(char *name, int mode, char *data) {
-    if (strcmp(name, "USER") == 0 || strcmp(name, "CWD") == 0) {
-        printf(ANSI_COLOR_RED "cannot overwrite %s\n" ANSI_COLOR_RESET, name);
-        return FAILURE;
-    }
-
-    if (list_find(name) == NULL)
-        return list_add(name, mode, data);
-    else
-        return list_change(name, mode, data);
-}
-
-int rm_variable(char *name) {
-    return list_remove(name);
-}
-
-void rm_allVariable() {
-    return list_removeAll(head);
-}
 
