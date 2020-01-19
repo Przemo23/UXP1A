@@ -22,4 +22,7 @@
 #define ANSI_FG_BLUE        "\x1b[34m"
 #define ANSI_FG_MAGENTA     "\x1b[35m"
 
+#define SUCCESS 1
+#define FAILURE 0
+
 #endif //UXP1A_DEFINES_H

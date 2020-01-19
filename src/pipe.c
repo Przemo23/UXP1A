@@ -3,6 +3,73 @@
 //
 
 #include <pipe.h>
+#include <variables.h>
+
+
+void run(char *program, char *args[]) {
+    int pid;
+    int cp[2]; /* potok z dziecka do rodzica */
+    char ch;
+    char out[10000];
+    int incount = 0, outcount = 0;
+
+    if (pipe(cp) < 0) {
+        perror("Nie można stworzyć potoku");
+        return;
+    }
+
+
+    /*switch( pid = fork() ) {
+        case -1:
+                perror("Nie mozna wykonać fork()");
+                return NULL;
+        case 0:
+                // Child
+                close(1); // zamknij obecne stdout
+                dup( cp[1]); // przekieruj stdout na potok
+                close( cp[0]);*/
+
+    //wywołanie z użyceim PATH
+    char *path, *dir, *tmp, *args_tmp;
+
+    path = (char *) malloc(1024);
+    dir = (char *) malloc(1024);
+    tmp = (char *) malloc(1024);
+    args_tmp = (char *) malloc(1024);
+
+    strcpy(path, get_variable("PATH"));
+    strcat(path, ":/home/michal/tkom/uxp/poligon");
+    strcpy(args_tmp, args[0]);
+
+    dir = strtok(path, ":");
+    while (dir != NULL) {
+        strcpy(tmp, dir);
+        strcat(tmp, "/");
+        strcat(tmp, program);
+
+        char *temp3[] = {"/bin/ps", "-a", (char *) 0};
+
+        //execl(tmp, program, (char *)NULL);
+        execv(tmp, args);
+        dir = strtok(NULL, ":");
+    }
+
+    /*perror("No exec");
+    exit(1);
+default:
+    // Parent
+    close(cp[1]);
+    int i=0;
+    while( read(cp[0], &ch, 1) == 1)
+    {
+        write(1, &ch, 1);
+        out[i++]=ch;
+    }
+    //printf("Wyjście: %s", out);
+}
+return NULL;*/
+
+}
 
 Pipe *findPipe(__pid_t pgid) {
     Pipe *t = firstGroup;
@@ -243,23 +310,11 @@ void runProcess(Proc *proc, __pid_t pgid, int fg, int inputFile, int outputFile,
         close(errorFile);
     }
     if (strcmp(proc->argv[0], "pwd") == 0) {
-        do_pwd();
+        pwd_cmd();
     } else if (strcmp(proc->argv[0], "cd") == 0) {
-        do_cd(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "ls") == 0) {
-        do_ls(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "mkdir") == 0) {
-        do_mkdir(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "rmdir") == 0) {
-        do_rmdir(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "touch") == 0) {
-        do_touch(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "rm") == 0) {
-        do_rm(proc->argv[1]);
-    } else if (strcmp(proc->argv[0], "cp") == 0) {
-        do_cp(proc->argv[1], proc->argv[2]);
+        cd_cmd(proc->argv[1]);
     } else if (strcmp(proc->argv[0], "echo") == 0) {
-        do_echo(proc->argv[1]);
+        echo_cmd(proc->argv[1]);
     } else
         run(proc->argv[0], proc->argv);
     //execvp(proc->argv[0], proc->argv);
@@ -318,4 +373,15 @@ void addProcessIntoLastPipe(char **args) {
         }
         temp2->next = p;
     }
+}
+
+
+// sprawdzenie czy procesy sa zatrzymane badz skonczone
+int checkIsTaskPaused(Pipe *t) {
+    Proc *proc;
+
+    for (proc = t->firstProc; proc; proc = proc->next)
+        if (!proc->finished && !proc->paused)
+            return 0;
+    return 1;
 }
