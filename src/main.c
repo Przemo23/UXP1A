@@ -18,7 +18,58 @@ extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 #define REPLACE 0
 #define IGNORE 1
 
-/// zanium zaczniemy parsować stringa musimy podstawić wszystkie zmienne
+typedef struct cmd_queue {
+    struct cmd_queue * prev, * next;
+    char * cmd;
+    struct cmd_queue * result_insert_element;
+    unsigned result_insert_pos;
+} Cmd_queue;
+
+typedef struct backquote_parent_command_queue {
+    struct backquote_parent_command_queue * next;
+    struct cmd_queue * element;
+} Backquote_parent_command_queue;
+
+void cmd_queue_insert(Cmd_queue * to_be_inserted, Cmd_queue ** following_element, Cmd_queue ** head) {
+    if(*following_element == NULL) {
+        *head = *following_element = to_be_inserted;
+        to_be_inserted->next = to_be_inserted->prev = NULL;
+        return;
+    }
+    if(*following_element == *head) {
+        *head = to_be_inserted;
+        to_be_inserted->prev = NULL;
+        to_be_inserted->next = *following_element;
+        (*following_element)->prev = to_be_inserted;
+        return;
+    }
+    to_be_inserted->next = *following_element;
+    to_be_inserted->prev = (*following_element)->prev;
+    to_be_inserted->prev->next = to_be_inserted;
+    to_be_inserted->next->prev = to_be_inserted;
+    return;
+}
+
+void cmd_queue_append(Cmd_queue * to_be_inserted, Cmd_queue ** preceding_element, Cmd_queue ** head) {
+    if(*preceding_element == NULL) {
+        *head = *preceding_element = to_be_inserted;
+        to_be_inserted->next = to_be_inserted->prev = NULL;
+        return;
+    }
+    if((*preceding_element)->next == NULL) {
+        to_be_inserted->next = NULL;
+        to_be_inserted->prev = *preceding_element;
+        (*preceding_element)->next = to_be_inserted;
+        return;
+    }
+    to_be_inserted->next = (*preceding_element)->next;
+    to_be_inserted->prev = *preceding_element;
+    to_be_inserted->prev->next = to_be_inserted;
+    to_be_inserted->next->prev = to_be_inserted;
+    return;
+}
+
+/// zanim zaczniemy parsować stringa musimy podstawić wszystkie zmienne
 void replace_env_variables(char **str) {
 
     char * line = *str;
@@ -52,7 +103,7 @@ void replace_env_variables(char **str) {
             name[name_len] = '\0';
 
             char* value = get_variable(name);
-            log_trace("Podstawiam zmianna %s na %s", name, value);
+            log_trace("Podstawiam zmienna %s na %s", name, value);
 
             // alokujemy bufor ktorego rozmiar jest wiekszy o tyle o ile value zmiennej jest wieksza od jej wartosci
             char* tmp = malloc(strlen(line) + strlen(value) - strlen(name) + 2); // dodatkowo na $ i \0
@@ -95,15 +146,95 @@ int main(int argc, char **argv, char *envp[]) {
         // trim \n at the end
         line[strlen(line) - 1] = '\0';
 
-        replace_env_variables(&line);
-        // TODO w tym miejscu trzeba preprocesowac polecenia
-        // miedzy innymi trzeba obluzyc ` ; oraz podstawienia zmiennych
+        Cmd_queue * cmds_head = NULL, * cmds_tail = NULL;
+        unsigned first_backquote_pos, last_semicolon_pushed = 0, last_semicolon_within_backquotes_pushed;
+        unsigned char parse_error = 0;
+        unsigned char first_backquote_found = 0;
+        unsigned buffer_cmd_pos = 0, backquote_buffer_cmd_pos = 0;
+        unsigned char * buffer = malloc(sizeof(line)), * backquote_buffer = malloc(sizeof(line));
+        Backquote_parent_command_queue * bquote_head = NULL;
 
-        log_trace("Parsuje komendę: %s", line);
-        YY_BUFFER_STATE buffer = yy_scan_string(line);
-        yyparse();
+        for (unsigned i = 0; i < strlen(line); ++i) {
 
-        yy_delete_buffer(buffer);
+            if(!first_backquote_found) {
+
+                if(line[i] == '`') {
+                    first_backquote_found = 1;
+                    first_backquote_pos = i;
+                    last_semicolon_within_backquotes_pushed = 0;
+                }
+
+                else if(line[i] == ';') {
+                    Cmd_queue * cmd_q_el = malloc(sizeof(Cmd_queue));
+                    cmd_q_el->cmd = malloc(sizeof(char) * (buffer_cmd_pos + 1));
+                    strncpy(cmd_q_el->cmd, line + i, buffer_cmd_pos);
+                    cmd_q_el->cmd[buffer_cmd_pos + 1] = '\0';
+                    cmd_q_el->result_insert_element = NULL;
+                    cmd_queue_append(cmd_q_el, &cmds_tail, &cmds_head);
+
+                    buffer_cmd_pos = 0;
+
+                    Backquote_parent_command_queue * bq_temp = bquote_head;
+                    while(bq_temp != NULL) {
+                        bq_temp->element->result_insert_element = cmd_q_el;
+                        bq_temp = bq_temp->next;
+                    }
+                    bquote_head = NULL;
+                }
+                else
+                    buffer[buffer_cmd_pos++] = line[i];
+            }
+            else {
+                if(line[i] == '`') {
+                    first_backquote_found = 0;
+                    Cmd_queue * cmd_q_el = malloc(sizeof(Cmd_queue));
+                    cmd_q_el->cmd = malloc(sizeof(char) * (backquote_buffer_cmd_pos + 1));
+                    strncpy(cmd_q_el->cmd, line + i, backquote_buffer_cmd_pos);
+                    cmd_q_el->cmd[backquote_buffer_cmd_pos + 1] = '\0';
+                    cmd_q_el->result_insert_pos = ;
+                    cmd_queue_insert(cmd_q_el, line, &cmds_head);
+
+                    Backquote_parent_command_queue ** bq_temp = &bquote_head;
+                    while(*bq_temp != NULL) {
+                        bq_temp = bq_temp->next;
+                    }
+                    *bq_temp = malloc(sizeof(Backquote_parent_command_queue));
+                    (*bq_temp)->element = cmd_q_el;
+                    (*bq_temp)->next = NULL;
+                }
+                if(line[i] == ';') {
+                    Cmd_queue * cmd_q_el = malloc(sizeof(Cmd_queue));
+                    cmd_q_el->cmd = malloc(sizeof(char) * (i - last_semicolon_pushed));
+                    strncpy(cmd_q_el->cmd, line + i, (i - last_semicolon_pushed - 1));
+                    cmd_q_el->cmd[i - last_semicolon_pushed - 1] = '\0';
+                    cmd_queue_insert(cmd_q_el, line, &cmds_head);
+                }
+            }
+
+        }
+
+        if(first_backquote_found)
+            parse_error = 1;
+
+        Backquote_parent_command_queue * bq_temp = bquote_head;
+        while(bq_temp != NULL) {
+            bq_temp->element->result_insert_element = cmd_q_el;
+            bq_temp = bq_temp->next;
+        }
+        bquote_head = NULL;
+        cmds_head->cmd[cmds_head_cmd_pos] = '\0';
+
+        if(parse_error == 0) {
+            replace_env_variables(&line);
+            // TODO w tym miejscu trzeba preprocesowac polecenia
+            // miedzy innymi trzeba obluzyc ` ; oraz podstawienia zmiennych
+
+            log_trace("Parsuje komendę: %s", line);
+            YY_BUFFER_STATE buffer = yy_scan_string(line);
+            yyparse();
+
+            yy_delete_buffer(buffer);
+        }
         free(line);
     }
 }
