@@ -38,7 +38,7 @@ command:
 	built_in_operation {log_trace("built_in_operation");}
   	| built_in_operation PIPE pipe {log_trace("built_in_operation PIPE pipe");}
   	| pipe {log_trace("pipe");}
-q
+
 pipe:
 	external_call {log_trace("external_call");}
   	| external_call PIPE pipe {log_trace("external_call PIPE pipe");}
