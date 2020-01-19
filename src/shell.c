@@ -21,10 +21,10 @@ void initShell() {
     log_trace("Pobrano nazwe hosta: %s", host);
 
 
-    list_add("PATH", getenv("PATH"));
-    list_add("HOME", getenv("HOME"));
-    list_add("USER", getenv("USER"));
-    list_add("PWD", getenv("PWD"));
+    set_variable("PATH", getenv("PATH"));
+    set_variable("HOME", getenv("HOME"));
+    set_variable("USER", getenv("USER"));
+    set_variable("PWD", getenv("PWD"));
 
 
     struct sigaction act;

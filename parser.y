@@ -128,10 +128,10 @@ assignment_sequence:
 	}
 
 assignment:
- 	VARNAME EQUALS WORD {
+ 	VARNAME EQUALS text {
 		log_trace("set_variable(%s,%s)",$1,$3);
+		set_variable($1,$3);
 		$$=$1;
-		// TODO
 	}
 
 text:

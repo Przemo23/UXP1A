@@ -2,45 +2,9 @@
 // Created by maciej on 18.01.2020.
 //
 
-#include <log.h>
-#include <memory.h>
-#include <builtins.h>
 #include "variables.h"
-#include "defines.h"
 
-int list_add(char *name, char *d) {
-    if (list_find(name) != NULL || d == NULL) {
-        log_error("Nie udało się ustawić zmiennej");
-        return FAILURE;
-    }
-
-    struct node *tmp = (struct node *) malloc(sizeof(struct node));
-
-    if (tmp == NULL) {
-        log_error("Nie udał się malloc");
-        return FAILURE;
-    }
-
-    strncpy(tmp->name, name, MAX_VAR_NAME_LEN);
-    strncpy(tmp->value, d, MAX_VAR_DATA_LEN);
-
-    tmp->next = head;
-    head = tmp;
-
-    log_trace("Ustawiono zmienna %s na wartość %s", head->name, head->value);
-
-    return SUCCESS;
-}
-
-void list_print() {
-    struct node *tmp = head;
-
-    while (tmp) {
-        printf("%s  %s\n", tmp->name, tmp->value);
-        tmp = tmp->next;
-    }
-}
-
+// prywatna
 struct node *list_find(char *name) {
     if (name == NULL)
         return NULL;
@@ -55,54 +19,35 @@ struct node *list_find(char *name) {
     return NULL;
 }
 
-// nalezy w argumencie podac wskaznik na head
-void list_removeAll(struct node *tmp) {
-    if (tmp == NULL)
+void set_variable(char *name, char *d) {
+
+    if (d == NULL) {
+        log_error("Niepoprawne wywolanie.");
         return;
-
-    list_removeAll(tmp->next);
-
-    if (head == tmp)
-        head = NULL;
-
-    free(tmp);
-}
-
-int list_remove(char *name) {
-    if (name == NULL || head == NULL)
-        return FAILURE;
-
-    struct node *tmp = head;
-    struct node *toRem;
-
-    if (strcmp(tmp->name, name) == 0) {
-        head = tmp->next;
-        free(tmp);
-        return SUCCESS;
     }
 
-    while (tmp->next) {
-        if (strcmp(tmp->next->name, name) == 0) {
+    Node *found = list_find(name);
 
-            toRem = tmp->next;
-            tmp->next = tmp->next->next;
-            free(toRem);
-            return SUCCESS;
-        }
-        tmp = tmp->next;
+    if (list_find(name) != NULL){
+        strncpy(found->value, d, MAX_VAR_DATA_LEN);
+        log_trace("Zmieniono zmienna %s na %s", found->name, found->value);
+        return;
     }
-    return FAILURE;
-}
 
-int list_change(char *name, char *d) {
-    struct node *tmp = list_find(name);
+    struct node *tmp = (struct node *) malloc(sizeof(struct node));
 
-    if (tmp == NULL || d == NULL)
-        return FAILURE;
+    if (tmp == NULL) {
+        log_error("Nie udał się malloc");
+        return;
+    }
 
+    strncpy(tmp->name, name, MAX_VAR_NAME_LEN);
     strncpy(tmp->value, d, MAX_VAR_DATA_LEN);
 
-    return SUCCESS;
+    tmp->next = head;
+    head = tmp;
+
+    log_trace("Ustawiono zmienna %s na %s", head->name, head->value);
 }
 
 char *get_variable(char *name) {
@@ -112,24 +57,4 @@ char *get_variable(char *name) {
     else {
         return "";
     }
-}
-
-int set_variable(char *name, char *data) {
-    if (strcmp(name, "USER") == 0 || strcmp(name, "CWD") == 0) {
-        printf(ANSI_FG_RED "cannot overwrite %s\n" ANSI_RESET, name);
-        return FAILURE;
-    }
-
-    if (list_find(name) == NULL)
-        return list_add(name, data);
-    else
-        return list_change(name, data);
-}
-
-int rm_variable(char *name) {
-    return list_remove(name);
-}
-
-void rm_allVariable() {
-    return list_removeAll(head);
 }
