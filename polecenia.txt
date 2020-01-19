@@ -11,6 +11,8 @@ export
 
 a=wd
 p$a
+b=$a
+p$b
 
 echo '$elo'
 echo $?
@@ -25,3 +27,15 @@ ls > out.txt
 ./a | ./b
 
 `cat plik.txt` > file.out
+
+
+Polecenia, których sparsowanie nie jest trywialne:
+echo echo
+echo pwd
+echo =
+czyli taka sytuacja gdzie jakis token powinien być potraktowany jako napis
+po namyśle: w sumie można w text dać wszystkie pojedyncze tokeny, powinno banglać
+po przetestowaniu: nie działa XD
+
+chyba trzeba będzie zrobić tak, że normalnie parsować wywołania wewnętrzne jak pipe
+dopiero przed momentem kiedy szukamy odpowiedniego execa to sprawdzamy czy przypadkie nie mamy builtina

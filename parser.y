@@ -1,67 +1,157 @@
 %{
-#include <stdio.h>
-int yylex();
-void yyerror(const char *s);
+	#include <stdio.h>
+	#include "log.h"
+	#include "arg_list.h"
+	#include "builtins.h"
+	#include "variables.h"
+
+	int yylex();
+	void yyerror(const char *s);
 
 %}
+%error-verbose
+%debug
 
-/*TOKENS*/
-%token REDIRECTION_IN REDIRECTION_OUT FUNKY PIPE NEWLINE SEMICOLON EQUALS
-%token PWD_CMD ECHO_CMD CD_CMD EXPORT_CMD
-%token VARNAME VARNAME2
-%token STRING
+
+%union{
+	int     int_type;
+	char*	char_pointer_type;
+	struct arg_node * arguments_type;
+}
+
+%type <char_pointer_type>	text
+%type <char_pointer_type>   assignment
+
+%token REDIRECTION_IN
+%token REDIRECTION_OUT
+%token PIPE
+%token EQUALS
+%token SEMICOLON
+
+%token PWD_CMD
+%token ECHO_CMD
+%token CD_CMD
+%token EXPORT_CMD
+
+%token <char_pointer_type> VARNAME
+%token <char_pointer_type> WORD
+%token <char_pointer_type> STRING
+%token <char_pointer_type> STRING2
 
 %%
 input:
-  | full_command input
-full_command: command NEWLINE{} {printf("command called \n");}
-  | command redirection NEWLINE{} {printf("command with redirection \n");}
-  | assignment_sequence NEWLINE{} {printf("assignment_sequence called \n");}
+	| full_command 	{
+		log_trace("full_command");
+	}
+	| full_command SEMICOLON {
+		log_trace("full_command SEMICOLON");
+	}
 
-command:built_in_operation {printf("built_in_operation called \n");}
-  | built_in_operation PIPE pipe {printf("built_in_operation with pipe called \n");}
-  | pipe {printf("pipe called \n");}
+full_command:
+  	assignment_sequence {
+		log_trace("assignment_sequence");
+	}
+	| command {
+		log_trace("command");
+	}
+  	| command redirection {
+		log_trace("command redirection");
+	}
 
-pipe: external_call {printf("external_call called \n");}
-  | external_call PIPE pipe {printf("external_call with pipe called \n");}
+command:
+	built_in_operation {
+		log_trace("built_in_operation");
+	}
+  	| built_in_operation PIPE pipe {
+		log_trace("built_in_operation PIPE pipe");
+	}
+  	| pipe {
+		log_trace("pipe");
+	}
 
-built_in_operation: built_in_command text_sequence {printf("command with param called \n");}
-  | built_in_command {printf("built_in_command called \n");}
-  | export_with_assignment {printf("export_with_assignment called \n" );}
+pipe:
+	text_sequence {
+		log_trace("text_sequence");
+	}
+  	| text_sequence PIPE pipe {
+		log_trace("text_sequence PIPE pipe");
+	}
 
-external_call: text_sequence {printf("text_sequence called \n");}/* check if not redundant */
+built_in_operation:
+  	PWD_CMD {
+		log_trace("pwd();");
+		pwd_cmd();
+	}
+  	| ECHO_CMD text	{
+		log_trace("echo(%s);", $2);
+		echo_cmd($2);
+	}
+  	| CD_CMD text {
+		log_trace("cd(%s);", $2);
+		cd_cmd($2);
+	}
+  	| EXPORT_CMD {
+		log_trace("export();");
+		export_cmd();
+	}
+	| EXPORT_CMD assignment {
+        	log_trace("export(%s)",$2);
+            set_env($2);
+	}
 
-text_sequence: text
-  | text text_sequence
+text_sequence:
+ 	text {
+		log_trace("text");
+	}
+  	| text text_sequence {
+		log_trace("text text_sequence");
+	}
 
-built_in_command: PWD_CMD {printf("pwd called \n" );}
-  | ECHO_CMD {printf("echo called \n");}
-  | CD_CMD{printf("cd called \n" );}
-  | EXPORT_CMD{printf("export called \n");}
+redirection:
+	REDIRECTION_IN text {
+		log_trace("REDIRECTION_IN text");
+	}
+	|REDIRECTION_OUT text {
+		log_trace("REDIRECTION_OUT text");
+	}
+	|REDIRECTION_IN text REDIRECTION_OUT text {
+		log_trace("redirection_in text REDIRECTION_OUT text");
+	}
+	|REDIRECTION_OUT text REDIRECTION_IN text {
+		log_trace("REDIRECTION_OUT text REDIRECTION_IN text");
+	}
 
-redirection: redirection_in {printf("redirection_in \n");}
-  |redirection_out  {printf("redirection_out \n");}
-  |redirection_inout  {printf("redirection_inout \n");}
-  |redirection_outin  {printf("redirection_outin \n");}
+assignment_sequence:
+ 	assignment {
+		log_trace("assignment");
+	}
+  	| assignment_sequence assignment {
+		log_trace("assignment_sequence assignment");
+	}
 
-redirection_in: REDIRECTION_IN text
+assignment:
+ 	VARNAME EQUALS text {
+		log_trace("set_variable(%s,%s)",$1,$3);
+		set_variable($1,$3, LOCAL);
+	    $$=$1;
+	}
 
-redirection_out: REDIRECTION_OUT text
-
-redirection_inout: REDIRECTION_IN text REDIRECTION_OUT text
-
-redirection_outin: REDIRECTION_OUT text REDIRECTION_IN text
-
-assignment_sequence: assignment {printf("assignment called");}
-  | assignment_sequence assignment
-
-export_with_assignment: EXPORT_CMD assignment
-
-assignment: VARNAME EQUALS text
-  | VARNAME EQUALS VARNAME2
-text: VARNAME {printf("VARNAME \n");}
-  | STRING {printf("STRING \n" );}
+text:
+	WORD {
+		log_trace("WORD"); $$ = $1;
+	}
+	| VARNAME {
+		log_trace("VARNAME %s", $1); $$ = $1;
+	}
+	| STRING {
+		log_trace("STRING"); $$ = $1;
+	}
+	| STRING2 {
+		log_trace("STRING2"); $$ = $1;
+	}
 %%
+
 void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
+   	extern char *yytext;
+   	printf("ERROR: %s at %s \n", s, yytext);
  }

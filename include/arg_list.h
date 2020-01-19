@@ -12,11 +12,12 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <string.h>
+#include "defines.h"
 
-typedef struct ang_node
+typedef struct arg_node
 {
     struct arg_node * next;
-    char arg[50];
+    char arg[MAX_ARG_LEN];
 } Arg_node;
 
 Arg_node * init_arg(char * name);
