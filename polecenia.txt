@@ -11,6 +11,8 @@ export
 
 a=wd
 p$a
+b=$a
+p$b
 
 echo '$elo'
 echo $?

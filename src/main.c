@@ -92,7 +92,7 @@ int main(int argc, char **argv, char *envp[]) {
         size_t n;
         getline(&line, &n, stdin);
 
-        // trim \n at the end of line
+        // trim \n at the end
         line[strlen(line) - 1] = '\0';
 
         replace_env_variables(&line);
