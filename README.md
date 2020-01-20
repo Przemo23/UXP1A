@@ -17,3 +17,7 @@ zapozna sie ze zmianami (przynajmniej 1 osoba) klikami "rebase and merge pull re
 
 czy maina mozna dodac w innym pliku niz plik parsera
 
+
+Proponuje do debugowania uzywac logera zamiast printf, mozna potem w latwy sposob przekeirowac 
+logi do pliku.
+Api jest wytlumaczone w readme.md na https://github.com/rxi/log.c
