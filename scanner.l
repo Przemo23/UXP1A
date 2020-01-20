@@ -18,6 +18,8 @@ str2  [\"][a-zA-Z0-9\.\_\-\/\$\`\=\ \\]*[\"]
 "echo"            { return ECHO_CMD; }
 "cd"              { return CD_CMD; }
 "export"          { return EXPORT_CMD; }
+"exit"            { return EXIT_CMD; }
+"quit"            { return EXIT_CMD; }
 
 {var}             { yylval.char_pointer_type = strdup(yytext); return VARNAME; }
 {wrd}             { yylval.char_pointer_type = strdup(yytext); return WORD; }

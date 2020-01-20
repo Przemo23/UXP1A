@@ -39,4 +39,6 @@ void initShell();
 
 void print_prompt();
 
+unsigned char finish_execution, parse_error;
+
 #endif //UXP1A_SHELL_H

@@ -30,6 +30,7 @@
 %token ECHO_CMD
 %token CD_CMD
 %token EXPORT_CMD
+%token EXIT_CMD
 
 %token <char_pointer_type> VARNAME
 %token <char_pointer_type> WORD
@@ -87,6 +88,10 @@ built_in_operation:
   	| CD_CMD text {
 		log_trace("cd(%s);", $2);
 		cd_cmd($2);
+	}
+	| EXIT_CMD {
+		log_trace("exit");
+		exit_cmd();
 	}
   	| EXPORT_CMD {
 		log_trace("export();");

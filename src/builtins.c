@@ -3,6 +3,7 @@
 //
 
 #include <builtins.h>
+#include <shell.h>
 
 void pwd_cmd() {
 
@@ -29,4 +30,6 @@ void echo_cmd(char *buf) {
     printf("%s\n", buf);
 }
 
-
+void exit_cmd() {
+    finish_execution = 1;
+}

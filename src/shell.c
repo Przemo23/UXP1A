@@ -11,6 +11,9 @@ void initShell() {
     // deskryptor pliku dla standardowego wejscia
     shellTerminal = STDIN_FILENO;
 
+    finish_execution = 0;
+    parse_error = 0;
+
     // pobiera strukture reprezentujaca uzytkownika o podanym UID
     struct passwd *pass = getpwuid(getuid());
     // pobranie nazwy użytkownika
