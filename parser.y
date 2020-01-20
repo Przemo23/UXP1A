@@ -1,7 +1,8 @@
 %{
 	#include <stdio.h>
+	#include "task.h"
 	#include "log.h"
-	#include "arg_list.h"
+	#include "list.h"
 	#include "builtins.h"
 
 	int yylex();
@@ -14,11 +15,12 @@
 %union{
 	int     int_type;
 	char*	char_pointer_type;
-	struct arg_node * arguments_type;
+	struct list_node * arguments_type;
 }
 
 %type <char_pointer_type>	text
 %type <char_pointer_type>   assignment
+%type <arguments_type>      text_sequence
 
 %token REDIRECTION_IN
 %token REDIRECTION_OUT
@@ -51,19 +53,30 @@ command:
 	built_in_operation {
 		log_trace("built_in_operation");
 	}
-  	| built_in_operation PIPE pipe {
-		log_trace("built_in_operation PIPE pipe");
+  	| built_in_operation PIPE task {
+		log_trace("built_in_operation PIPE task");
 	}
-  	| pipe {
-		log_trace("pipe");
+  	| task {
+		log_trace("runTask();");
+		run_task();
+		free_process_list();
+
 	}
 
-pipe:
+task:
 	text_sequence {
-		log_trace("text_sequence");
+		char * s = list_convert_to_str($1);
+		log_trace("Dodaje nowy proces do zadania:%s", s);
+		free(s);
+		add_process_to_task($1);
+		list_free($1);
 	}
-  	| text_sequence PIPE pipe {
-		log_trace("text_sequence PIPE pipe");
+  	| text_sequence PIPE task {
+		char * s = list_convert_to_str($1);
+		log_trace("Dodaje nowy proces do zadania:%s", s);
+		free(s);
+		add_process_to_task($1);
+		list_free($1);
 	}
 
 built_in_operation:
@@ -90,10 +103,12 @@ built_in_operation:
 
 text_sequence:
  	text {
-		log_trace("text");
+ 		log_trace("Inicjuję liste:%s", $1);
+		$$ = list_init($1);
 	}
   	| text text_sequence {
-		log_trace("text text_sequence");
+		log_trace("Dodaje do listy:%s", $1);
+		$$ = list_add($2, $1);
 	}
 
 redirection:
