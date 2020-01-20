@@ -11,6 +11,7 @@ export
 
 a=wd
 p$a
+
 b=$a
 p$b
 
@@ -27,7 +28,6 @@ ls > out.txt
 ./a | ./b
 
 `cat plik.txt` > file.out
-
 
 Polecenia, których sparsowanie nie jest trywialne:
 echo echo

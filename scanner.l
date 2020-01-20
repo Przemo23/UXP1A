@@ -12,7 +12,6 @@ str2  [\"][a-zA-Z0-9\.\_\-\/\$\`\=\ \\]*[\"]
 ">"               { return REDIRECTION_OUT; }
 "|"               { return PIPE; }
 "="               { return EQUALS; }
-";"               { return SEMICOLON; }
 
 "pwd"             { return PWD_CMD; }
 "echo"            { return ECHO_CMD; }

@@ -24,7 +24,6 @@
 %token REDIRECTION_OUT
 %token PIPE
 %token EQUALS
-%token SEMICOLON
 
 %token PWD_CMD
 %token ECHO_CMD
@@ -39,14 +38,6 @@
 
 %%
 input:
-	| full_command 	{
-		log_trace("full_command");
-	}
-	| full_command SEMICOLON {
-		log_trace("full_command SEMICOLON");
-	}
-
-full_command:
   	assignment_sequence {
 		log_trace("assignment_sequence");
 	}
