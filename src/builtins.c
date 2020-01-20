@@ -28,5 +28,3 @@ void echo_cmd(char *buf) {
     }
     printf("%s\n", buf);
 }
-
-

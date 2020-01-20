@@ -30,6 +30,7 @@ int shellTerminal;
 // przechowuje ustawienia terminala
 struct termios shellModes;
 
+
 // nazwa użytkownika
 char user[MAX_USER_LEN];
 // nazwa komputera

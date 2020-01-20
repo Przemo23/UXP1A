@@ -10,7 +10,6 @@ void initShell() {
 
     // deskryptor pliku dla standardowego wejscia
     shellTerminal = STDIN_FILENO;
-
     // pobiera strukture reprezentujaca uzytkownika o podanym UID
     struct passwd *pass = getpwuid(getuid());
     // pobranie nazwy użytkownika
@@ -49,9 +48,6 @@ void initShell() {
     // zapisanie domyslnych atrybutow terminala dla shella
     tcgetattr(shellTerminal, &shellModes);
 }
-
-
-
 
 void print_prompt() {
 

@@ -2,6 +2,7 @@
 // Created by maciej on 17.01.2020.
 //
 
+
 #include <log.h>
 #include <variables.h>
 #include "shell.h"
