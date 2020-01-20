@@ -133,13 +133,18 @@ int main(int argc, char **argv, char *envp[]) {
         char * cmd_buffer = malloc(sizeof(line)), * backquote_buffer = malloc(sizeof(line));
         Backquote_parent_command_queue * bquote_head = NULL;
 
-        //TODO: ucieczki
+        unsigned char rewrite = 0;
 
         for (unsigned i = 0; i < strlen(line); ++i) {
 
             if(!first_backquote_found) {
 
-                if(line[i] == '`')
+                if(line[i] == '\'' || rewrite) {
+                    if(line[i] == '\'')
+                        rewrite = (rewrite == 1) ? 0 : 1;
+                    cmd_buffer[buffer_cmd_pos++] = line[i];
+                }
+                else if(line[i] == '`')
                     first_backquote_found = 1;
 
                 else if(line[i] == ';') {
@@ -166,6 +171,11 @@ int main(int argc, char **argv, char *envp[]) {
                     cmd_buffer[buffer_cmd_pos++] = line[i];
             }
             else {
+                if(line[i] == '\'' || rewrite) {
+                    if(line[i] == '\'')
+                        rewrite = (rewrite == 1) ? 0 : 1;
+                    backquote_buffer[backquote_buffer_cmd_pos++] = line[i];
+                }
                 if(line[i] == '`') {
                     first_backquote_found = 0;
 
