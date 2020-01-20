@@ -2,14 +2,10 @@
 #include <log.h>
 #include "shell.h"
 #include "variables.h"
-#include "pipe.h"
 
-// nalezy uwazac, gdy wykonujemy shella który ma kontrole pracy i jest wolany z innego shell, ktory ma swoja kontrole pracy
 void initShell() {
-    firstGroup = NULL;
-
-    // deskryptor pliku dla standardowego wejscia
-    shellTerminal = STDIN_FILENO;
+    // deskryptorem terminala jest poczatkowy stdin
+    terminalFD = STDIN_FILENO;
     // pobiera strukture reprezentujaca uzytkownika o podanym UID
     struct passwd *pass = getpwuid(getuid());
     // pobranie nazwy użytkownika
@@ -18,6 +14,7 @@ void initShell() {
     // pobiera nazwe hosta
     gethostname(host, 128);
     log_trace("Pobrano nazwe hosta: %s", host);
+    log_trace("Session id:%d", getsid(0));
 
 
     set_variable("PATH", getenv("PATH"));
@@ -27,7 +24,7 @@ void initShell() {
 
 
     struct sigaction act;
-    act.sa_handler = SIG_IGN;
+    act.sa_handler = SIG_IGN; // ign - ignore
     act.sa_flags = 0;
 
     // shell ignoruje wszystkie sygnaly
@@ -38,15 +35,15 @@ void initShell() {
     sigaction(SIGTTIN, &act, NULL);
     sigaction(SIGTTOU, &act, NULL);
 
-    // stworzenie nowej grupy, nowe procesy beda do niej nalezaly
+    // stworzenie nowej grupy
     shellPGID = getpid();
     setpgid(0, shellPGID);
 
     // przejecie kontroli nad terminalem
-    tcsetpgrp(shellTerminal, shellPGID);
+    tcsetpgrp(terminalFD, shellPGID);
 
-    // zapisanie domyslnych atrybutow terminala dla shella
-    tcgetattr(shellTerminal, &shellModes);
+    // zapisanie poczatkowych atrybutow terminala
+    tcgetattr(terminalFD, &terminalModes);
 }
 
 void print_prompt() {

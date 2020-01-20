@@ -18,7 +18,7 @@ typedef struct node {
 
 } Node;
 
-Node *head;
+Node *variables_head;
 
 void set_variable(char *name, char *d);
 
