@@ -83,7 +83,7 @@ void replace_env_variables(char **str) {
 
 int main(int argc, char **argv, char *envp[]) {
 
-    log_trace("Inicjalizacja shell'a");
+    log_trace("Inicjalizacja shella");
     initShell();
 
     while (1) {

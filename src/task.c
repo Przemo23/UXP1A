@@ -7,42 +7,10 @@
 
 // prywatna
 // nie wraca (exec)
-void runProgram(Proc *proc, int inFD, int outFD) {
-
-    pid_t pid = getpid();
-
-    if( pgid == 0 )
-        pgid = pid;
-
-    setpgid(pid, pgid);
-    tcsetpgrp( terminalFD, pgid );
-
-    struct sigaction act;
-    act.sa_handler = SIG_DFL;  /* dfl - default */
-    act.sa_flags = 0;
-
-    // nie ignorujemy sygnalów
-    sigaction(SIGINT, &act, NULL);
-    sigaction(SIGQUIT, &act, NULL);
-    sigaction(SIGCHLD, &act, NULL);
-    sigaction(SIGTSTP, &act, NULL);
-    sigaction(SIGTTIN, &act, NULL);
-    sigaction(SIGTTOU, &act, NULL);
-
-    if (inFD != STDIN_FILENO) {
-        // dup2(oldfd,newfd) makes newfd be the copy of oldfd, closing newfd first if necessary
-        dup2(inFD, STDIN_FILENO);
-        close(inFD);
-    }
-
-    if (outFD != STDOUT_FILENO) {
-        dup2(outFD, STDOUT_FILENO);
-        close(outFD);
-    }
+void runProgram(Proc *proc) {
 
     // todo zmienic na execvpe
     execvp(proc->argv[0], proc->argv);
-
     exit(-1);
 }
 
@@ -53,7 +21,7 @@ void add_process_to_task(List_node * node) {
 
     // tworzymy tablice argv
     int len = list_len(node);
-    p->argv = malloc(sizeof(char*) * (len+1));
+    p->argv = (char*) malloc(sizeof(char*) * (len+1));
     p->argv[len]= NULL;
 
     int i = 0;
@@ -62,84 +30,67 @@ void add_process_to_task(List_node * node) {
         strcpy(p->argv[i++], tmp->str);
     }
 
-    // dodaj na koniec listy
-    if (proc_head == NULL) {
-        proc_head = p;
-    }
-    else {
-        Proc *tmp = proc_head;
-        while (tmp->next != NULL) {
-            tmp = tmp->next;
-        }
-        tmp->next = p;
-    }
-
+    // dodaj na początek listy
+    p->next = proc_head;
+    proc_head = p;
 }
-
 
 // rozpoczecie wykonywania zadania
 void run_task() {
     log_trace("uruchamiam task:%s\n", proc_head->argv[0]);
-    int fd[2], in, out;
-
-    in = first_process_stdin;
-
+    int fd[2], out = -1;
+    pipe(fd);
+    int pipefd[2];
+    pipe(pipefd);
 
     for (Proc* tmp = proc_head; tmp != NULL; tmp = tmp->next) {
-        if (tmp->next != NULL) {
+        if (tmp->next)
             pipe(fd);
-            out = fd[1];
-        } else {
-            out = last_process_stdout;
-        }
-
-        // todo przed forkiem trzeba sprawdzić czy nie builtin
-        // jezeli tak to otworzyc stdout jako out
-        // po wszystkim trzeba znowu otworzyc stdout
-
-
-
-//        if (strcmp(tmp->argv[0], "pwd") == 0) {
-//            pwd_cmd();
-//        } else if (strcmp(tmp->argv[0], "cd") == 0) {
-//            cd_cmd(tmp->argv[1]);
-//        } else if (strcmp(tmp->argv[0], "echo") == 0) {
-//            echo_cmd(tmp->argv[1]);
-//        }
-
 
         pid_t pid;
         pid = fork();
-        if (pid == 0)
-            runProgram(tmp, in, out);
-            // powyzsza funkcja nigdy nie wraca (exec)
-
+        if (pid == 0) {
+            if(tmp != proc_head) {
+                dup2(out, STDIN_FILENO);
+                close(out);
+            }
+            if(tmp->next) {
+                close(fd[0]);
+                dup2(fd[1], STDOUT_FILENO);
+                close(fd[1]);
+                close(pipefd[0]);
+                close(pipefd[1]);
+            }
+            else{
+                close(pipefd[0]);
+                dup2(pipefd[1], STDOUT_FILENO);
+                close(pipefd[1]);
+            }
+            runProgram(tmp);
+        }
         tmp->pid = pid;
         if (!pgid)
             pgid = pid;
         setpgid(pid, pgid);
-        close(in);
-        close(out);
-
-        in = fd[0];
+        if(tmp != proc_head)
+            close(out);
+        if(tmp->next) {
+            out = fd[0];
+            close(fd[1]);
+        }
     }
 
-//    if (tcsetpgrp(terminalFD, pgid) == -1)
-//        log_error("Nie udalo sie oddac terminala");
+    close(pipefd[1]);  // close the write end of the pipe in the parent
 
-    kill(pgid, SIGCONT);
+    while (read(pipefd[0], result, sizeof(result)) != 0)
+    {
+    }
 
+    printf("%s",result);
 
     for (Proc* tmp = proc_head; tmp != NULL; tmp = tmp->next) {
-        // WUTRACED - czekamy na zakonczenie lub zatrzymanie
         waitpid(tmp->pid, NULL, WUNTRACED);
     }
-
-    // Przenieś shell z powrotem do pierwszego planu
-//    if (tcsetpgrp(terminalFD, shellPGID) == -1)
-//        log_error("Nie mozna wstawic shella z powrotem do foreground");
-
-    tcsetattr(terminalFD, TCSADRAIN, &terminalModes);
 }
 
 // prywatna

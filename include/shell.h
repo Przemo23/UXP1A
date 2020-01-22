@@ -40,4 +40,6 @@ void initShell();
 
 void print_prompt();
 
+char result[1024];
+
 #endif //UXP1A_SHELL_H
