@@ -22,7 +22,7 @@
 #include "builtins.h"
 #include "list.h"
 #include <variables.h>
-#include <list.h>
+#include "shell.h"
 
 
 
