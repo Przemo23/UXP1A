@@ -8,15 +8,19 @@
 int main(int argc, char **argv, char *envp[]) {
 
     printf("Ten program po prostu wypisuje to co przeczyta\n");
+    fflush(stdout);
 
     while(1){
         char * s = NULL;
         size_t n;
-        getline(&s, &n, stdin);
+        if(getline(&s, &n, stdin) == -1){
+            return 1;
+        }
+        printf("%s", s);
+        fflush(stdout);
         if (strcmp(s, "stop\n") == 0) {
             break;
         }
-        printf("Wpisałeś:%s", s);
     }
 
     return 0;
