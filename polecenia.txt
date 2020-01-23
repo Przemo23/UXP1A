@@ -29,6 +29,12 @@ ls > out.txt
 
 `cat plik.txt` > file.out
 
+../test/write.out
+../test/read_write.out
+../test/write_stop.out | ../test/read_write.out
+
+../test/read_write.out | ../test/read_write.out | ../test/read_write.out
+
 Polecenia, których sparsowanie nie jest trywialne:
 echo echo
 echo pwd

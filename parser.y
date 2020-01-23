@@ -58,9 +58,9 @@ command:
 	}
   	| task {
 		log_trace("runTask();");
+		init_task();
 		run_task();
 		free_process_list();
-
 	}
 
 task:

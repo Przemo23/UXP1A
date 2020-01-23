@@ -1,5 +1,6 @@
 #include "builtins.h"
 #include <log.h>
+#include <task.h>
 #include "shell.h"
 #include "variables.h"
 
@@ -28,12 +29,12 @@ void initShell() {
     act.sa_flags = 0;
 
     // shell ignoruje wszystkie sygnaly
-    sigaction(SIGINT, &act, NULL);
-    sigaction(SIGQUIT, &act, NULL);
-    sigaction(SIGCHLD, &act, NULL);
-    sigaction(SIGTSTP, &act, NULL);
-    sigaction(SIGTTIN, &act, NULL);
-    sigaction(SIGTTOU, &act, NULL);
+//    sigaction(SIGINT, &act, NULL);
+//    sigaction(SIGQUIT, &act, NULL);
+//    sigaction(SIGCHLD, &act, NULL);
+//    sigaction(SIGTSTP, &act, NULL);
+//    sigaction(SIGTTIN, &act, NULL);
+//    sigaction(SIGTTOU, &act, NULL);
 
     // stworzenie nowej grupy
     shellPGID = getpid();
@@ -44,6 +45,8 @@ void initShell() {
 
     // zapisanie poczatkowych atrybutow terminala
     tcgetattr(terminalFD, &terminalModes);
+
+    command_out_fd = STDOUT_FILENO;
 }
 
 void print_prompt() {
