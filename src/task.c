@@ -21,7 +21,7 @@ void add_process_to_task(List_node * node) {
 
     // tworzymy tablice argv
     int len = list_len(node);
-    p->argv = (char*) malloc(sizeof(char*) * (len+1));
+    p->argv = (char **) malloc(sizeof(char *) * (len + 1));
     p->argv[len]= NULL;
 
     int i = 0;
