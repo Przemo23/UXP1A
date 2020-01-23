@@ -38,7 +38,7 @@ void add_process_to_task(List_node * node) {
 
 // rozpoczecie wykonywania zadania
 void run_task() {
-    log_trace("uruchamiam task:%s\n", proc_head->argv[0]);
+    log_trace("uruchamiam task:%s", proc_head->argv[0]);
     int fd[2], out = -1;
     pipe(fd);
     int pipefd[2];
