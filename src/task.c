@@ -11,6 +11,7 @@ void runProgram(Proc *proc) {
 
     // todo zmienic na execvpe
     execvp(proc->argv[0], proc->argv);
+    log_trace("Nie udało się uruchomić zadania %s", proc->argv[0] );
     exit(-1);
 }
 
@@ -42,6 +43,9 @@ void run_task() {
     pipe(fd);
     int pipefd[2];
     pipe(pipefd);
+
+    // czysczenie bufora wyniku
+    memset(result, '\0', 1024);
 
     for (Proc* tmp = proc_head; tmp != NULL; tmp = tmp->next) {
         if (tmp->next)
