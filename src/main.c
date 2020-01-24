@@ -94,7 +94,7 @@ void rediract_logs(char * filename) {
 
 int main(int argc, char **argv, char *envp[]) {
 
-    rediract_logs("logs.txt");
+//    rediract_logs("logs.txt");
 
     log_trace("Inicjalizacja shella");
     initShell();
