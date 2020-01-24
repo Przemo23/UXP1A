@@ -9,7 +9,7 @@ struct node *list_find(char *name) {
     if (name == NULL)
         return NULL;
 
-    struct node *tmp = head;
+    struct node *tmp = variables_head;
 
     while (tmp) {
         if (strcmp(tmp->name, name) == 0)
@@ -44,10 +44,10 @@ void set_variable(char *name, char *d) {
     strncpy(tmp->name, name, MAX_VAR_NAME_LEN);
     strncpy(tmp->value, d, MAX_VAR_DATA_LEN);
 
-    tmp->next = head;
-    head = tmp;
+    tmp->next = variables_head;
+    variables_head = tmp;
 
-    log_trace("Ustawiono zmienna %s na %s", head->name, head->value);
+    log_trace("Ustawiono zmienna %s na %s", variables_head->name, variables_head->value);
 }
 
 char *get_variable(char *name) {

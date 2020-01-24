@@ -24,11 +24,11 @@
 
 
 // numer grupy procesów shella
-pid_t shellPGID;
+pid_t shellPID;
 // Deskryptor terminala
-int shellTerminal;
+int terminalFD;
 // przechowuje ustawienia terminala
-struct termios shellModes;
+struct termios terminalModes;
 
 
 // nazwa użytkownika

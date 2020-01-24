@@ -11,7 +11,7 @@
 #define MAX_USER_LEN 128
 #define MAX_HOST_LEN 128
 
-#define MAX_ARG_LEN 100
+#define MAX_LIST_DATA_LEN 128
 
 #define ANSI_RESET          "\x1b[0m"
 #define ANSI_BOLD           "\033[1m"

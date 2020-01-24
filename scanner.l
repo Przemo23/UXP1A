@@ -13,13 +13,6 @@ str2  [\"][a-zA-Z0-9\.\_\-\/\$\`\=\ \\]*[\"]
 "|"               { return PIPE; }
 "="               { return EQUALS; }
 
-"pwd"             { return PWD_CMD; }
-"echo"            { return ECHO_CMD; }
-"cd"              { return CD_CMD; }
-"export"          { return EXPORT_CMD; }
-"exit"            { return EXIT_CMD; }
-"quit"            { return EXIT_CMD; }
-
 {var}             { yylval.char_pointer_type = strdup(yytext); return VARNAME; }
 {wrd}             { yylval.char_pointer_type = strdup(yytext); return WORD; }
 {str}             { char * s = strdup(yytext+1); s[strlen(s)-1] ='\0'; yylval.char_pointer_type = s;  return STRING; }

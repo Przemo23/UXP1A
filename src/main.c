@@ -6,6 +6,7 @@
 #include <log.h>
 #include <variables.h>
 #include "shell.h"
+#include <errno.h>
 
 extern int yyparse();
 
@@ -111,10 +112,40 @@ void replace_env_variables(char **str) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
+void rediract_logs(char * filename) {
+    FILE * fp = fopen(filename, "a");
+    if (fp == NULL) {
+        log_error("Nie udalo sie przekierowac logow do pliku: %s", strerror(errno));
+    } else {
+        log_set_fp(fp);
+        log_set_quiet(1);
+    }
+}
+
 int main(int argc, char **argv, char *envp[]) {
 
-    log_trace("Inicjalizacja shell'a");
+    rediract_logs("logs.txt");
+
+    log_trace("Inicjalizacja shella");
     initShell();
+
+    // do Wojtka
+    // zeby zbuforowac sobie wyjscie z komendy trzeba zrobic cos takiego:
+    /*
+    int previous_stdout = dup(STDOUT_FILENO);
+    int fd[2];
+    pipe(fd);
+
+    dup2(fd[1], STDOUT_FILENO);
+    close(fd[1]);
+    // tutaj wykonujemy kod ktorego stdout chcemy zbuforowac
+    dup2(previous_stdout, STDOUT_FILENO);
+    close(previous_stdout);
+    char result[1024];
+    while (read(fd[0], result, sizeof(result)) != 0) {}
+    close(fd[0]);
+    */
+
 
     while (1) {
 
