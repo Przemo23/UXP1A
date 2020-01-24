@@ -1,4 +1,4 @@
-all: read_write.out write.out print_argv.out write_stop.out sleep.out exit.out
+all: read_write.out write.out print_argv.out write_stop.out sleep.out exit.out print_env.out
 
 read_write.out: read_write.c
 	gcc read_write.c -o read_write.out
@@ -17,3 +17,6 @@ sleep.out: sleep.c
 
 exit.out: exit.c
 	gcc exit.c -o exit.out
+
+print_env.out: print_env.c
+	gcc print_env.c -o print_env.out
