@@ -5,6 +5,7 @@
 #ifndef UXP1A_BUILTINS_H
 #define UXP1A_BUILTINS_H
 
+#include "shell.h"
 #include "log.h"
 
 #include <limits.h>

@@ -39,6 +39,7 @@ int before_redirection_stdin;
 int before_redirection_stdout;
 char * last_process_status;
 
+
 pid_t pgid;
 
 void reset_rediractions();

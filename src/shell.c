@@ -6,9 +6,12 @@
 #include <errno.h>
 
 void initShell() {
-    // zmiene eksporotwane
     // deskryptorem terminala jest poczatkowy stdin
     terminalFD = dup(STDIN_FILENO);
+
+    finish_execution = 0;
+    parse_error = 0;
+
     // pobiera strukture reprezentujaca uzytkownika o podanym UID
     struct passwd *pass = getpwuid(getuid());
     // pobranie nazwy użytkownika
@@ -18,6 +21,13 @@ void initShell() {
     gethostname(host, 128);
     log_trace("Pobrano nazwe hosta: %s", host);
     log_trace("Session id:%d", getsid(0));
+
+    // todo ustawic wszystkie zmienne z envp zamiast tylko tych 4
+    set_variable("PATH", getenv("PATH"));
+    set_variable("HOME", getenv("HOME"));
+    set_variable("USER", getenv("USER"));
+    set_variable("PWD", getenv("PWD"));
+
 
     struct sigaction act;
     act.sa_handler = SIG_IGN; // ign - ignore
@@ -47,6 +57,9 @@ void initShell() {
     last_process_status = NULL;
 }
 
+
+
+
 void print_prompt() {
 
     printf(ANSI_BOLD ANSI_FG_GREEN "%s@%s" ANSI_RESET, user, host);
@@ -66,4 +79,3 @@ void print_prompt() {
     printf(ANSI_RESET);
     printf( "$ ");
 }
-

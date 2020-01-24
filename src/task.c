@@ -10,6 +10,7 @@
 
 // prywatna
 // nie wraca (exec)
+
 void run_program(Proc *proc) {
     pid_t pid = getpid();
 
@@ -28,7 +29,7 @@ void run_program(Proc *proc) {
     sigaction(SIGQUIT, &act, NULL);
     sigaction(SIGTTIN, &act, NULL);
     sigaction(SIGTTOU, &act, NULL);
-
+  
     execvp(proc->argv[0], proc->argv);
     printf("Nie udało się uruchomić zadania %s\n", proc->argv[0]);
     exit(7);
@@ -130,6 +131,7 @@ void run_task() {
                 // zamykamy deskryptory do zapamietaniu stanu macierzystego
                 close(our_stdin);
                 close(our_stdout);
+              
                 run_program(tmp);
             }
 
@@ -175,12 +177,10 @@ void run_task() {
         log_trace("Czekam na proces o pidzie %d", tmp->pid);
 
         pid_t x = waitpid(tmp->pid, &status, 0);
-
         free(last_process_status);
         char *s = malloc(sizeof(char) * 12);
         sprintf(s, "%d", status);
         last_process_status = s;
-
         if (x != tmp->pid) {
             log_error("Nie udal sie waitpid %d, zwrocil %d: %s",tmp->pid, x, strerror(errno));
         }
@@ -194,6 +194,7 @@ void run_task() {
 
     if(tcsetpgrp(terminalFD, shellPID ) == - 1){
         log_trace("Nie udalo sie przeniesc procesu do foreground, mozliwe ze juz bylismy na fg: %s", strerror(errno));
+
     }
 }
 

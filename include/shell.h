@@ -29,8 +29,6 @@ pid_t shellPID;
 int terminalFD;
 // przechowuje ustawienia terminala
 struct termios terminalModes;
-// zmiene eksporotwane, ustawiane poprzez getenv i setenv
-
 
 // nazwa użytkownika
 char user[MAX_USER_LEN];
@@ -40,5 +38,7 @@ char host[MAX_HOST_LEN];
 void initShell();
 
 void print_prompt();
+
+unsigned char finish_execution, parse_error;
 
 #endif //UXP1A_SHELL_H
