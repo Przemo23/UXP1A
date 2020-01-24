@@ -47,7 +47,8 @@ void initShell() {
     // zapisanie poczatkowych atrybutow terminala
     tcgetattr(terminalFD, &terminalModes);
 
-    command_out_fd = STDOUT_FILENO;
+    before_redirection_stdin = -1;
+    before_redirection_stdout = -1;
 }
 
 void print_prompt() {

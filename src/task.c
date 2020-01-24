@@ -17,10 +17,19 @@ void runProgram(Proc *proc) {
     exit(7);
 }
 
-void init_task() {
-    log_trace("Wywołano init_task");
-    first_process_in_fd = STDIN_FILENO;
-    last_process_out_fd = command_out_fd;
+void reset_rediractions() {
+    log_trace("Wywołano reset_rediractions");
+    if (before_redirection_stdin != -1) {
+        dup2(before_redirection_stdin, STDIN_FILENO);
+        close(before_redirection_stdin);
+        before_redirection_stdin = -1;
+    }
+    if (before_redirection_stdout != -1) {
+        dup2(before_redirection_stdout, STDOUT_FILENO);
+        close(before_redirection_stdout);
+        before_redirection_stdout = -1;
+    }
+
 }
 
 void add_process_to_task(List_node * node) {
@@ -46,9 +55,12 @@ void add_process_to_task(List_node * node) {
 // rozpoczecie wykonywania zadania
 void run_task() {
 
+
     char *log = proc_list_convert_to_str();
     log_trace("uruchamiam task: %s", log);
     free(log);
+
+
 
     int fd[2];
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
@@ -67,14 +79,8 @@ void run_task() {
         log_trace("Tworze nowy proces dla: %s", tmp->argv[0]);
         pid = fork();
         if (pid == 0) {
-            // pierwszy
-            if (tmp == proc_head) {
-                if (first_process_in_fd != STDIN_FILENO) {
-                    dup2(first_process_in_fd, STDIN_FILENO);
-                    close(first_process_in_fd);
-                }
-            } // nie pierwsze
-            else {
+            // nie pierwszey
+            if(tmp != proc_head) {
                 // otwieramy jako stdin wyjscie z poprzedniego potoku
                 dup2(previous, STDIN_FILENO);
                 close(previous);
@@ -87,12 +93,6 @@ void run_task() {
                 // zamykamy wyjscie utworzonego przez nas potoku, bo z niego bedzie czytal nastepny proces
                 close(fd[0]);
             } // ostatni
-            else{
-                if (last_process_out_fd != STDOUT_FILENO) {
-                    dup2(last_process_out_fd, STDOUT_FILENO);
-                    close(last_process_out_fd);
-                }
-            }
             runProgram(tmp);
         }
         log_trace("Utworzono proces o pidzie %d", pid);

@@ -35,18 +35,12 @@ typedef struct proc {
 
 Proc *proc_head;
 
-// zazwyczaj to stdout, ta wartosc jest ustawiana jako pipe dla komend wywolywanych w ` `
-int command_out_fd;
-
-// stdin lub deskryptor pliku jezeli bylo przekierowanie
-int first_process_in_fd;
-
-// ta wartosc inicjowana jest przez command_out_fd
-int last_process_out_fd;
+int before_redirection_stdin;
+int before_redirection_stdout;
 
 pid_t pgid;
 
-void init_task();
+void reset_rediractions();
 
 // dodaje proces do listy procesow
 void add_process_to_task(List_node * node);
