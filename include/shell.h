@@ -22,7 +22,6 @@
 #include "builtins.h"
 #include "defines.h"
 
-
 // numer grupy procesów shella
 pid_t shellPID;
 // Deskryptor terminala

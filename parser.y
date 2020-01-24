@@ -4,6 +4,7 @@
 	#include "log.h"
 	#include "list.h"
 	#include "builtins.h"
+	#include "shell.h"
 
 	int yylex();
 	void yyerror(const char *s);
@@ -194,5 +195,5 @@ text1:
 void yyerror (char const *s) {
    	extern char *yytext;
    	printf("syntax error: %s at %s\n", s, yytext);
-
+	parse_error = 1;
  }

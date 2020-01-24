@@ -10,7 +10,6 @@
 #include "string.h"
 #include "malloc.h"
 
-
 typedef struct node {
     struct node *next;
     char name[MAX_VAR_NAME_LEN];    // nazwa zmiennej
