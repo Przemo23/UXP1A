@@ -19,6 +19,7 @@ void initShell() {
     log_trace("Session id:%d", getsid(0));
 
 
+    // todo ustawic wszystkie zmienne z envp zamiast tylko tych 4
     set_variable("PATH", getenv("PATH"));
     set_variable("HOME", getenv("HOME"));
     set_variable("USER", getenv("USER"));
