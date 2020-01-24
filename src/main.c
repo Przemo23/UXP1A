@@ -83,6 +83,9 @@ void replace_env_variables(char **str) {
 
 int main(int argc, char **argv, char *envp[]) {
 
+    FILE * fp = fopen("log.txt", "a");
+    log_set_fp(fp);
+
     log_trace("Inicjalizacja shella");
     initShell();
 
