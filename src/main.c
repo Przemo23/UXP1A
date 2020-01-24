@@ -363,6 +363,12 @@ int main(int argc, char **argv, char *envp[]) {
             free(cmd_q_el);
         }
         free(line);
+        while(cmd_result_head != NULL) {
+            Cmd_result_queue * temp = cmd_result_head;
+            cmd_result_head = cmd_result_head -> next;
+            free(temp->str);
+            free(temp);
+        }
         if(finish_execution)
             break;
         parse_error = 0;
