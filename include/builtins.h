@@ -15,7 +15,7 @@ void pwd_cmd();
 
 void cd_cmd(char *fileDir);
 
-void echo_cmd(char *buf);
+void echo_cmd(char **argv);
 
 void export_cmd(char **argv);
 

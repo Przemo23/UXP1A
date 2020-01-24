@@ -77,7 +77,7 @@ bool run_builtin(Proc *proc) {
         cd_cmd(proc->argv[1]);
         return true;
     } else if (strcmp(proc->argv[0], "echo") == 0) {
-        echo_cmd(proc->argv[1]);
+        echo_cmd(proc->argv);
         return true;
     } else if (strcmp(proc->argv[0], "export") == 0) {
         export_cmd(proc->argv);
