@@ -60,8 +60,6 @@ void run_task() {
     log_trace("uruchamiam task: %s", log);
     free(log);
 
-
-
     int fd[2];
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
 
@@ -102,13 +100,13 @@ void run_task() {
 //        setpgid(pid, pgid);
 
         // nie pierwszy
-//        if(tmp != proc_head)
-//            close(previous);
+        if(tmp != proc_head)
+            close(previous);
         if(tmp->next != NULL) {
             // ustawiamy wejscie nastepnego potoku
             previous = fd[0];
+            close(fd[1]);
         }
-        // todo trzeba pozamykac fd 0 i fd 1 w macierzystym
     }
 
 
