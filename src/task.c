@@ -10,7 +10,7 @@
 
 // prywatna
 // nie wraca (exec)
-void runProgram(Proc *proc) {
+void run_program(Proc *proc) {
     pid_t pid = getpid();
 
     if (!pgid) {
@@ -130,7 +130,7 @@ void run_task() {
                 // zamykamy deskryptory do zapamietaniu stanu macierzystego
                 close(our_stdin);
                 close(our_stdout);
-                runProgram(tmp);
+                run_program(tmp);
             }
 
             log_trace("Utworzono proces o pidzie %d", pid);
@@ -175,6 +175,12 @@ void run_task() {
         log_trace("Czekam na proces o pidzie %d", tmp->pid);
 
         pid_t x = waitpid(tmp->pid, &status, 0);
+
+        free(last_process_status);
+        char *s = malloc(sizeof(char) * 12);
+        sprintf(s, "%d", status);
+        last_process_status = s;
+
         if (x != tmp->pid) {
             log_error("Nie udal sie waitpid %d, zwrocil %d: %s",tmp->pid, x, strerror(errno));
         }
