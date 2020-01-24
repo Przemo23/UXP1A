@@ -16,13 +16,6 @@
 #define ANSI_RESET          "\x1b[0m"
 #define ANSI_BOLD           "\033[1m"
 #define ANSI_FG_GREEN       "\x1b[32m"
-#define ANSI_FG_RED         "\x1b[31;1m"
-#define ANSI_FG_YELLOW      "\x1b[33;1m"
-#define ANSI_FG_CYAN        "\x1b[36;1m"
 #define ANSI_FG_BLUE        "\x1b[34m"
-#define ANSI_FG_MAGENTA     "\x1b[35m"
-
-#define SUCCESS 1
-#define FAILURE 0
 
 #endif //UXP1A_DEFINES_H
