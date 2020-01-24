@@ -24,7 +24,7 @@
 
 
 // numer grupy procesów shella
-pid_t shellPGID;
+pid_t shellPID;
 // Deskryptor terminala
 int terminalFD;
 // przechowuje ustawienia terminala
