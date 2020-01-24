@@ -56,6 +56,8 @@ void run_task();
 
 void free_process_list();
 
+char * proc_list_convert_to_str();
+
 #include "shell.h"
 
 #endif //UXP1A_TASK_H
