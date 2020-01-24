@@ -45,7 +45,11 @@ void add_process_to_task(List_node * node) {
 
 // rozpoczecie wykonywania zadania
 void run_task() {
-    log_trace("uruchamiam task: %s", proc_head->argv[0]);
+
+    char *log = proc_list_convert_to_str();
+    log_trace("uruchamiam task: %s", log);
+    free(log);
+
     int fd[2];
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
 
@@ -149,4 +153,22 @@ void free_recursive(Proc *tmp) {
 void free_process_list() {
     free_recursive(proc_head);
     proc_head = NULL;
+}
+
+char * proc_list_convert_to_str() {
+    size_t size = 0;
+
+    for(Proc * tmp = proc_head; tmp != NULL; tmp=tmp->next){
+        size += strlen(tmp->argv[0]) + 1;
+    }
+
+    char *result = malloc(sizeof(char) * (size + 1));
+    result[0] = '\0';
+
+    for(Proc * tmp = proc_head; tmp != NULL; tmp=tmp->next){
+        strcat(result, tmp->argv[0]);
+        strcat(result, "|");
+    }
+    result[strlen(result)-1] = '\0'; // usuwamy ostatni znak |, beda dwa \0 ale to nie szkodzi
+    return result;
 }
