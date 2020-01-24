@@ -51,9 +51,9 @@ void echo_cmd(char **argv) {
 
     char ** tmp = argv + 1;
     for (; *tmp != NULL; tmp++) {
-        printf("%s\n", *tmp);
+        printf("%s ", *tmp);
     }
-
+    printf("\n");
 
 }
 
