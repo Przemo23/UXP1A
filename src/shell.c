@@ -3,6 +3,7 @@
 #include <task.h>
 #include "shell.h"
 #include "variables.h"
+#include <errno.h>
 
 void initShell() {
     // deskryptorem terminala jest poczatkowy stdin
@@ -68,3 +69,4 @@ void print_prompt() {
     printf(ANSI_RESET);
     printf( "$ ");
 }
+

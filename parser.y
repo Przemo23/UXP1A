@@ -21,6 +21,7 @@
 %type <char_pointer_type>	text
 %type <char_pointer_type>   assignment
 %type <arguments_type>      text_sequence
+%type <int_type>      redirection
 
 %token REDIRECTION_IN
 %token REDIRECTION_OUT
@@ -42,27 +43,26 @@ input:
   	assignment_sequence {
 		log_trace("assignment_sequence");
 	}
-	| command {
-		log_trace("command");
-	}
-  	| command redirection {
-		log_trace("command redirection");
-	}
-
-command:
 	built_in_operation {
 		log_trace("built_in_operation");
 	}
   	| built_in_operation PIPE task {
 		log_trace("built_in_operation PIPE task");
 	}
-  	| task {
+  	| task redirection {
+  		if ($2 == 0){
+			log_trace("runTask();");
+			init_task();
+			run_task();
+  		}
+		free_process_list();
+	}
+	| task {
 		log_trace("runTask();");
 		init_task();
 		run_task();
 		free_process_list();
-	}
-
+        }
 task:
 	text_sequence {
 		char * s = list_convert_to_str($1);
@@ -103,26 +103,72 @@ built_in_operation:
 
 text_sequence:
  	text {
- 		log_trace("Inicjuję liste:%s", $1);
+ 		// log_trace("Inicjuję liste:%s", $1);
 		$$ = list_init($1);
 	}
   	| text text_sequence {
-		log_trace("Dodaje do listy:%s", $1);
+		// log_trace("Dodaje do listy:%s", $1);
 		$$ = list_add($2, $1);
 	}
 
 redirection:
 	REDIRECTION_IN text {
-		log_trace("REDIRECTION_IN text");
+		int in = open($2, O_RDWR, 00666);
+		if (in < 0){
+			printf("%s: Nie ma takiego pliku\n", $2);
+			$$ = -1;
+		} else {
+			log_trace("Przekierowuje stdin z pliku: %s", $2);
+			first_process_in_fd = in;
+			$$ = 0;
+		}
 	}
 	|REDIRECTION_OUT text {
-		log_trace("REDIRECTION_OUT text");
+		int out = open($2, O_RDWR | O_CREAT, 00666);
+		if (out < 0){
+			printf("%s: Nie mozna otworzyc pliku\n", $2);
+			$$ = -1;
+		} else {
+			log_trace("Przekierowuje stdout do pliku: %s", $2);
+			last_process_out_fd = out;
+			$$ = 0;
+		}
 	}
 	|REDIRECTION_IN text REDIRECTION_OUT text {
-		log_trace("redirection_in text REDIRECTION_OUT text");
+		int in = open($2, O_RDWR, 00666);
+		int out = open($4, O_RDWR | O_CREAT, 00666);
+		if (in < 0){
+			printf("%s: Nie ma takiego pliku\n", $2);
+			$$ = -1;
+		} else if (out < 0) {
+			printf("%s: Nie mozna otworzyc pliku\n", $4);
+			$$ = -1;
+		}
+		else {
+			log_trace("Przekierowuje stdin z pliku: %s", $2);
+			log_trace("Przekierowuje stdout do pliku: %s", $4);
+			first_process_in_fd = in;
+			last_process_out_fd = out;
+			$$ = 0;
+		}
 	}
 	|REDIRECTION_OUT text REDIRECTION_IN text {
-		log_trace("REDIRECTION_OUT text REDIRECTION_IN text");
+		int in = open($4, O_RDWR, 00666);
+		int out = open($2, O_RDWR | O_CREAT, 00666);
+		if (in < 0){
+			printf("%s: Nie ma takiego pliku\n", $4);
+			$$ = -1;
+		} else if (out < 0) {
+			printf("%s: Nie mozna otworzyc pliku\n", $2);
+			$$ = -1;
+		}
+		else {
+			log_trace("Przekierowuje stdin z pliku: %s", $4);
+			log_trace("Przekierowuje stdout do pliku: %s", $2);
+			first_process_in_fd = in;
+			last_process_out_fd = out;
+			$$ = 0;
+		}
 	}
 
 assignment_sequence:
@@ -142,16 +188,16 @@ assignment:
 
 text:
 	WORD {
-		log_trace("WORD"); $$ = $1;
+		// log_trace("WORD"); $$ = $1;
 	}
 	| VARNAME {
-		log_trace("VARNAME %s", $1); $$ = $1;
+		// log_trace("VARNAME %s", $1); $$ = $1;
 	}
 	| STRING {
-		log_trace("STRING"); $$ = $1;
+		// log_trace("STRING"); $$ = $1;
 	}
 	| STRING2 {
-		log_trace("STRING2"); $$ = $1;
+		// log_trace("STRING2"); $$ = $1;
 	}
 %%
 
