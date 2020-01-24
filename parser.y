@@ -52,14 +52,13 @@ input:
   	| task redirection {
   		if ($2 == 0){
 			log_trace("runTask();");
-			init_task();
 			run_task();
   		}
 		free_process_list();
+		reset_rediractions();
 	}
 	| task {
 		log_trace("runTask();");
-		init_task();
 		run_task();
 		free_process_list();
         }
@@ -119,7 +118,8 @@ redirection:
 			$$ = -1;
 		} else {
 			log_trace("Przekierowuje stdin z pliku: %s", $2);
-			first_process_in_fd = in;
+			before_redirection_stdin = dup(STDIN_FILENO);
+			dup2(in, STDIN_FILENO);
 			$$ = 0;
 		}
 	}
@@ -130,7 +130,8 @@ redirection:
 			$$ = -1;
 		} else {
 			log_trace("Przekierowuje stdout do pliku: %s", $2);
-			last_process_out_fd = out;
+			before_redirection_stdout = dup(STDOUT_FILENO);
+			dup2(out, STDOUT_FILENO);
 			$$ = 0;
 		}
 	}
@@ -147,8 +148,10 @@ redirection:
 		else {
 			log_trace("Przekierowuje stdin z pliku: %s", $2);
 			log_trace("Przekierowuje stdout do pliku: %s", $4);
-			first_process_in_fd = in;
-			last_process_out_fd = out;
+			before_redirection_stdin = dup(STDIN_FILENO);
+			dup2(in, STDIN_FILENO);
+			before_redirection_stdout = dup(STDOUT_FILENO);
+			dup2(out, STDOUT_FILENO);
 			$$ = 0;
 		}
 	}
@@ -165,8 +168,10 @@ redirection:
 		else {
 			log_trace("Przekierowuje stdin z pliku: %s", $4);
 			log_trace("Przekierowuje stdout do pliku: %s", $2);
-			first_process_in_fd = in;
-			last_process_out_fd = out;
+			before_redirection_stdin = dup(STDIN_FILENO);
+			dup2(in, STDIN_FILENO);
+			before_redirection_stdout = dup(STDOUT_FILENO);
+			dup2(out, STDOUT_FILENO);
 			$$ = 0;
 		}
 	}
