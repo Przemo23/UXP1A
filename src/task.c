@@ -80,8 +80,9 @@ bool run_builtin(Proc *proc) {
     } else if (strcmp(proc->argv[0], "echo") == 0) {
         echo_cmd(proc->argv[1]);
         return true;
-    } else if (strcmp(proc->argv[0], "exit") == 0) {
-        exit(0);
+    } else if (((strcmp(proc->argv[0], "exit") == 0) || (strcmp(proc->argv[0], "quit")) == 0)) {
+        finish_execution = 1;
+        return true;
     }
     return false;
 }

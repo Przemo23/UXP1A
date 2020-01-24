@@ -32,7 +32,3 @@ void echo_cmd(char *buf) {
     }
     printf("%s\n", buf);
 }
-
-void exit_cmd() {
-    finish_execution = 1;
-}

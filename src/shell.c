@@ -8,10 +8,6 @@
 void initShell() {
     // deskryptorem terminala jest poczatkowy stdin
     terminalFD = dup(STDIN_FILENO);
-    firstGroup = NULL;
-
-    // deskryptor pliku dla standardowego wejscia
-    shellTerminal = STDIN_FILENO;
 
     finish_execution = 0;
     parse_error = 0;
