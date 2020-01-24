@@ -11,7 +11,7 @@
 // prywatna
 // nie wraca (exec)
 void runProgram(Proc *proc) {
-
+    // todo przeniesc proces na foreground
     // todo zmienic na execvpe
     execvp(proc->argv[0], proc->argv);
     log_trace("Nie udało się uruchomić zadania %s", proc->argv[0]);
