@@ -173,5 +173,5 @@ text:
 
 void yyerror (char const *s) {
    	extern char *yytext;
-   	printf("ERROR: %s at %s \n", s, yytext);
+   	log_trace("ERROR: %s at %s", s, yytext);
  }

@@ -7,7 +7,7 @@
 
 void initShell() {
     // deskryptorem terminala jest poczatkowy stdin
-    terminalFD = STDIN_FILENO;
+    terminalFD = dup(STDIN_FILENO);
     // pobiera strukture reprezentujaca uzytkownika o podanym UID
     struct passwd *pass = getpwuid(getuid());
     // pobranie nazwy użytkownika
@@ -30,20 +30,21 @@ void initShell() {
     act.sa_handler = SIG_IGN; // ign - ignore
     act.sa_flags = 0;
 
-    // shell ignoruje wszystkie sygnaly
-//    sigaction(SIGINT, &act, NULL);
-//    sigaction(SIGQUIT, &act, NULL);
-//    sigaction(SIGCHLD, &act, NULL);
-//    sigaction(SIGTSTP, &act, NULL);
-//    sigaction(SIGTTIN, &act, NULL);
-//    sigaction(SIGTTOU, &act, NULL);
+    // shell ignoruje sygnaly zwiazane z terminalem
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGQUIT, &act, NULL);
+    sigaction(SIGTSTP, &act, NULL);
+    sigaction(SIGTTIN, &act, NULL);
+    sigaction(SIGTTOU, &act, NULL);
 
     // stworzenie nowej grupy
-    shellPGID = getpid();
-    setpgid(0, shellPGID);
+    shellPID = getpid();
+    setpgid(0, shellPID);
 
     // przejecie kontroli nad terminalem
-    tcsetpgrp(terminalFD, shellPGID);
+    if(tcsetpgrp(STDIN_FILENO, shellPID ) == - 1){
+        log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
+    }
 
     // zapisanie poczatkowych atrybutow terminala
     tcgetattr(terminalFD, &terminalModes);

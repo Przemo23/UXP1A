@@ -11,10 +11,27 @@
 // prywatna
 // nie wraca (exec)
 void runProgram(Proc *proc) {
-    // todo przeniesc proces na foreground
+    pid_t pid = getpid();
+
+    if (!pgid) {
+        pgid = pid;
+        if(setpgid(pid, pgid == -1)){
+            log_error("NIe udalo sie setpgid: %d", strerror(errno));
+        }
+    }
+
+    struct sigaction act;
+    act.sa_handler = SIG_DFL; // dfl - default
+    act.sa_flags = 0;
+
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGQUIT, &act, NULL);
+    sigaction(SIGTTIN, &act, NULL);
+    sigaction(SIGTTOU, &act, NULL);
+
     // todo zmienic na execvpe
     execvp(proc->argv[0], proc->argv);
-    log_trace("Nie udało się uruchomić zadania %s", proc->argv[0]);
+    printf("Nie udało się uruchomić zadania %s\n", proc->argv[0]);
     exit(7);
 }
 
@@ -30,7 +47,6 @@ void reset_rediractions() {
         close(before_redirection_stdout);
         before_redirection_stdout = -1;
     }
-
 }
 
 void add_process_to_task(List_node *node) {
@@ -70,7 +86,7 @@ bool run_builtin(Proc *proc) {
 
 // rozpoczecie wykonywania zadania
 void run_task() {
-
+    pgid = 0;
 
     char *log = proc_list_convert_to_str();
     log_trace("uruchamiam task: %s", log);
@@ -78,9 +94,6 @@ void run_task() {
 
     int fd[2];
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
-
-    // czysczenie bufora wyniku
-    // memset(result, '\0', 1024);
 
     for (Proc *tmp = proc_head; tmp != NULL; tmp = tmp->next) {
         // zapamietujemy sobie nasze aktualne stdin i stdout, potem je przywrocimy na macierzystym
@@ -115,7 +128,23 @@ void run_task() {
                 close(our_stdout);
                 runProgram(tmp);
             }
+
             log_trace("Utworzono proces o pidzie %d", pid);
+
+            // jeden raz dla tasku ustawiamy grupe i oddajemy terminal
+            if (!pgid) {
+                pgid = pid;
+                if(setpgid(pid, pgid == -1)){
+                    log_error("NIe udalo sie setpgid: %d", strerror(errno));
+                }
+                if(tcsetpgrp(terminalFD, pgid ) == - 1){
+                    log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
+                }
+                // jezeli proces probowal cos odczytac bedac na bg (przed tcsetpgr) to zostal zatrzymany
+                // wysylamy mu SIGCONT zeby sie wznowil
+                kill(pgid, SIGCONT);
+            }
+
             tmp->pid = pid;
         }
 
@@ -128,21 +157,8 @@ void run_task() {
         dup2(our_stdin, STDIN_FILENO);
         close(our_stdin);
         close(our_stdout);
-
-//        if (!pgid)
-//            pgid = pid;
-//        setpgid(pid, pgid);
-
-
-
     }
 
-
-//    while (read(pipefd[0], result, sizeof(result)) != 0)
-//    {
-//    }
-//
-//    printf("%s",result);
 
     for (Proc *tmp = proc_head; tmp != NULL; tmp = tmp->next) {
         // to byla komenda wbudowana
@@ -150,20 +166,24 @@ void run_task() {
             continue;
         }
 
-        // WUNTRACED
+
         int status = 0;
         log_trace("Czekam na proces o pidzie %d", tmp->pid);
 
         pid_t x = waitpid(tmp->pid, &status, 0);
         if (x != tmp->pid) {
-            log_error("Nie udal sie waitpid, zwrocil %d: %s", x, strerror(errno));
+            log_error("Nie udal sie waitpid %d, zwrocil %d: %s",tmp->pid, x, strerror(errno));
         }
         if (WIFEXITED(status)) {
-            log_trace("Proces zakonczyl kodem: %d", WEXITSTATUS(status));
+            log_trace("Proces %d zakonczyl kodem: %d", tmp->pid, WEXITSTATUS(status));
         }
         if (WIFSIGNALED(status)) {
-            log_trace("Proces zakonczyl sie przez sygnal %d", WTERMSIG(status));
+            log_trace("Proces %d zakonczyl sie przez sygnal %d",  tmp->pid, WTERMSIG(status));
         }
+    }
+
+    if(tcsetpgrp(terminalFD, shellPID ) == - 1){
+        log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
     }
 }
 
