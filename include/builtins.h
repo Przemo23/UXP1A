@@ -14,8 +14,10 @@
 
 void pwd_cmd();
 
-void cd_cmd(char *fileDir);
+void cd_cmd(char **argv);
 
-void echo_cmd(char *buf);
+void echo_cmd(char **argv);
+
+void export_cmd(char **argv);
 
 #endif //UXP1A_BUILTINS_H

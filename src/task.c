@@ -10,7 +10,8 @@
 
 // prywatna
 // nie wraca (exec)
-void runProgram(Proc *proc) {
+
+void run_program(Proc *proc) {
     pid_t pid = getpid();
 
     if (!pgid) {
@@ -28,8 +29,7 @@ void runProgram(Proc *proc) {
     sigaction(SIGQUIT, &act, NULL);
     sigaction(SIGTTIN, &act, NULL);
     sigaction(SIGTTOU, &act, NULL);
-
-    // todo zmienic na execvpe
+  
     execvp(proc->argv[0], proc->argv);
     printf("Nie udało się uruchomić zadania %s\n", proc->argv[0]);
     exit(7);
@@ -75,14 +75,16 @@ bool run_builtin(Proc *proc) {
         pwd_cmd();
         return true;
     } else if (strcmp(proc->argv[0], "cd") == 0) {
-        cd_cmd(proc->argv[1]);
+        cd_cmd(proc->argv);
         return true;
     } else if (strcmp(proc->argv[0], "echo") == 0) {
-        echo_cmd(proc->argv[1]);
+        echo_cmd(proc->argv);
         return true;
-    } else if (((strcmp(proc->argv[0], "exit") == 0) || (strcmp(proc->argv[0], "quit")) == 0)) {
-        finish_execution = 1;
+    } else if (strcmp(proc->argv[0], "export") == 0) {
+        export_cmd(proc->argv);
         return true;
+    } else if (strcmp(proc->argv[0], "exit") == 0) {
+        exit(0);
     }
     return false;
 }
@@ -129,7 +131,8 @@ void run_task() {
                 // zamykamy deskryptory do zapamietaniu stanu macierzystego
                 close(our_stdin);
                 close(our_stdout);
-                runProgram(tmp);
+              
+                run_program(tmp);
             }
 
             log_trace("Utworzono proces o pidzie %d", pid);
@@ -174,6 +177,10 @@ void run_task() {
         log_trace("Czekam na proces o pidzie %d", tmp->pid);
 
         pid_t x = waitpid(tmp->pid, &status, 0);
+        free(last_process_status);
+        char *s = malloc(sizeof(char) * 12);
+        sprintf(s, "%d", status);
+        last_process_status = s;
         if (x != tmp->pid) {
             log_error("Nie udal sie waitpid %d, zwrocil %d: %s",tmp->pid, x, strerror(errno));
         }
@@ -186,7 +193,8 @@ void run_task() {
     }
 
     if(tcsetpgrp(terminalFD, shellPID ) == - 1){
-        log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
+        log_trace("Nie udalo sie przeniesc procesu do foreground, mozliwe ze juz bylismy na fg: %s", strerror(errno));
+
     }
 }
 

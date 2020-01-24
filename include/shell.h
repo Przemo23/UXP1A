@@ -30,7 +30,6 @@ int terminalFD;
 // przechowuje ustawienia terminala
 struct termios terminalModes;
 
-
 // nazwa użytkownika
 char user[MAX_USER_LEN];
 // nazwa komputera

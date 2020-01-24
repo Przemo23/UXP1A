@@ -3,6 +3,8 @@
 //
 
 #include <builtins.h>
+#include <shell.h>
+#include <variables.h>
 
 // todo zmienic wszystkie builtiny tak zeby przyjmowaly liste argumentow (argv)
 
@@ -17,18 +19,65 @@ void pwd_cmd() {
     }
 }
 
-void cd_cmd(char *fileDir) {
-    // todo zaimplementowac obsluge ~ w cd
-    // todo zaimplementowac bezparametrowe wywolanie cd
-    if (chdir(fileDir) != 0) {
-        printf("%s: No such file or directory\n", fileDir);
+void cd_cmd(char **argv) {
+    // nie ma argumentow
+    if (*(argv + 1) == NULL) {
+        chdir(getenv("HOME"));
+        return;
+    }
+    char *path = argv[1];
+    if (path[0] == '~') {
+        char *home = getenv("HOME");
+        char *s = malloc((strlen(path) + strlen(home) + 1) * sizeof(char));
+        s[0] = '\0';
+        strcat(s, home);
+        strcat(s,path + 1);
+        if (chdir(s) != 0) {
+            printf("%s: No such file or directory\n", s);
+        }
+        free(s);
+        return;
+    }
+
+    if (chdir(path) != 0) {
+        printf("%s: No such file or directory\n", path);
     }
 }
 
-void echo_cmd(char *buf) {
-    if (buf == NULL ) {
+void echo_cmd(char **argv) {
+    // nie ma argumentow
+    if (*(argv + 1) == NULL) {
         printf("\n");
         return;
     }
-    printf("%s\n", buf);
+    char ** tmp = argv + 1;
+    for (; *tmp != NULL; tmp++) {
+        printf("%s\n", *tmp);
+    }
+
+
+}
+
+extern char ** environ;
+
+void export_cmd(char **argv) {
+    // nie ma argumentow
+    if (*(argv + 1) == NULL) {
+        for (char **temp = environ; *temp != NULL; temp++) {
+            printf("declare -x %s\n", *temp);
+        }
+        return;
+    }
+
+    char ** tmp = argv + 1;
+    for (; *tmp != NULL; tmp++) {
+        char * s = get_variable(*tmp);
+        if (strcmp(s, "") != 0) {
+            setenv(*tmp, s, 1);
+        } else {
+            char * m = malloc(sizeof(char) * (strlen(*tmp) + 1));
+            strcpy(m,*tmp);
+            putenv(m);
+        }
+    }
 }

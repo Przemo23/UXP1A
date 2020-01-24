@@ -7,6 +7,8 @@
 
 	int yylex();
 	void yyerror(const char *s);
+
+	char * free_me = NULL;
 %}
 %error-verbose
 %debug
@@ -19,6 +21,7 @@
 }
 
 %type <char_pointer_type>	text
+%type <char_pointer_type>	text1
 %type <char_pointer_type>   assignment
 %type <arguments_type>      text_sequence
 %type <int_type>      redirection
@@ -34,7 +37,11 @@
 %token <char_pointer_type> STRING2
 
 %%
-input:
+input: 	cmd {
+		free(free_me);
+		free_me = NULL;
+	}
+cmd:
   	assignment_sequence {
 		log_trace("assignment_sequence");
 	}
@@ -155,8 +162,21 @@ assignment:
 		set_variable($1,$3);
 		$$=$1;
 	}
-
 text:
+	text1 {
+		$$ = $1;
+	}
+	| text1 EQUALS text1 {
+		char * s = malloc ( strlen($1) + 1 +  strlen($3) + 1);
+		s[0] = '\0';
+		strcat(s,$1);
+		strcat(s,"=");
+		strcat(s,$3);
+		free_me = s;
+		$$ = s;
+	}
+
+text1:
 	WORD {
 		// log_trace("WORD"); $$ = $1;
 	}
@@ -173,5 +193,6 @@ text:
 
 void yyerror (char const *s) {
    	extern char *yytext;
-   	printf("syntax error: %s at %s", s, yytext);
+   	printf("syntax error: %s at %s\n", s, yytext);
+
  }

@@ -22,7 +22,6 @@ void initShell() {
     log_trace("Pobrano nazwe hosta: %s", host);
     log_trace("Session id:%d", getsid(0));
 
-
     // todo ustawic wszystkie zmienne z envp zamiast tylko tych 4
     set_variable("PATH", getenv("PATH"));
     set_variable("HOME", getenv("HOME"));
@@ -47,7 +46,7 @@ void initShell() {
 
     // przejecie kontroli nad terminalem
     if(tcsetpgrp(STDIN_FILENO, shellPID ) == - 1){
-        log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
+        log_error("Nie udalo sie przeniesc procesu do foreground, czy uruchamiasz przez terminal?: %s", strerror(errno));
     }
 
     // zapisanie poczatkowych atrybutow terminala
@@ -55,6 +54,7 @@ void initShell() {
 
     before_redirection_stdin = -1;
     before_redirection_stdout = -1;
+    last_process_status = NULL;
 }
 
 
