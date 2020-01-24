@@ -6,6 +6,7 @@
 #include <errno.h>
 
 void initShell() {
+    // zmiene eksporotwane
     // deskryptorem terminala jest poczatkowy stdin
     terminalFD = dup(STDIN_FILENO);
     // pobiera strukture reprezentujaca uzytkownika o podanym UID

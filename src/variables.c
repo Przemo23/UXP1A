@@ -2,6 +2,7 @@
 // Created by maciej on 18.01.2020.
 //
 
+#include <stdlib.h>
 #include "variables.h"
 
 // prywatna
@@ -23,6 +24,12 @@ void set_variable(char *name, char *d) {
 
     if (d == NULL) {
         log_error("Niepoprawne wywolanie.");
+        return;
+    }
+
+    char *var = getenv(name);
+    if (var != NULL) {
+        setenv(name, d, 1);
         return;
     }
 
@@ -51,6 +58,11 @@ void set_variable(char *name, char *d) {
 }
 
 char *get_variable(char *name) {
+    char *var = getenv(name);
+    if (var != NULL) {
+        return var;
+    }
+
     struct node *tmp = list_find(name);
     if (tmp != NULL)
         return tmp->value;

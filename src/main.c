@@ -92,7 +92,7 @@ void rediract_logs(char * filename) {
     }
 }
 
-int main(int argc, char **argv, char *envp[]) {
+int main(int argc, char **argv, char ** env) {
 
     rediract_logs("logs.txt");
 
