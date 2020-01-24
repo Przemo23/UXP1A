@@ -29,7 +29,6 @@ void runProgram(Proc *proc) {
     sigaction(SIGTTIN, &act, NULL);
     sigaction(SIGTTOU, &act, NULL);
 
-    // todo zmienic na execvpe
     execvp(proc->argv[0], proc->argv);
     printf("Nie udało się uruchomić zadania %s\n", proc->argv[0]);
     exit(7);
