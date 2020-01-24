@@ -161,6 +161,10 @@ int main(int argc, char **argv, char ** env) {
         size_t n;
         getline(&line, &n, stdin);
 
+        if (strlen(line) == 1) {
+            continue;
+        }
+
         // trim \n at the end
         line[strlen(line) - 1] = '\0';
 
