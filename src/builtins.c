@@ -27,19 +27,34 @@ void cd_cmd(char *fileDir) {
     }
 }
 
-void echo_cmd(char *buf) {
-    if (buf == NULL ) {
+void echo_cmd(char **argv) {
+    // nie ma argumentow
+    if (*(argv + 1) == NULL) {
         printf("\n");
         return;
     }
-    printf("%s\n", buf);
+
+    char ** tmp = argv + 1;
+    for (; *tmp != NULL; tmp++) {
+        printf("%s\n", *tmp);
+    }
+
+
 }
 
 extern char ** environ;
 
 void export_cmd(char **argv) {
+    // nie ma argumentow
+    if (*(argv + 1) == NULL) {
+        for (char **temp = environ; *temp != NULL; temp++) {
+            printf("declare -x %s\n", *temp);
+        }
+        return;
+    }
+
     char ** tmp = argv + 1;
-    for (tmp; *tmp != NULL; tmp++) {
+    for (; *tmp != NULL; tmp++) {
         char * s = get_variable(*tmp);
         if (strcmp(s, "") != 0) {
             setenv(*tmp, s, 1);
@@ -49,13 +64,5 @@ void export_cmd(char **argv) {
             putenv(m);
         }
     }
-
-    // nie bylo argumentow
-    if (*(argv + 1) == NULL) {
-        for (char **temp = environ; *temp != NULL; temp++) {
-            printf("declare -x %s\n", *temp);
-        }
-    }
-
 }
 
