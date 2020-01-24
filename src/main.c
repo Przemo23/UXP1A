@@ -99,6 +99,24 @@ int main(int argc, char **argv, char *envp[]) {
     log_trace("Inicjalizacja shella");
     initShell();
 
+    // do Wojtka
+    // zeby zbuforowac sobie wyjscie z komendy trzeba zrobic cos takiego:
+    /*
+    int previous_stdout = dup(STDOUT_FILENO);
+    int fd[2];
+    pipe(fd);
+
+    dup2(fd[1], STDOUT_FILENO);
+    close(fd[1]);
+    // tutaj wykonujemy kod ktorego stdout chcemy zbuforowac
+    dup2(previous_stdout, STDOUT_FILENO);
+    close(previous_stdout);
+    char result[1024];
+    while (read(fd[0], result, sizeof(result)) != 0) {}
+    close(fd[0]);
+    */
+
+
     while (1) {
 
         print_prompt();
