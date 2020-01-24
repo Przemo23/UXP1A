@@ -6,6 +6,7 @@
 #include <log.h>
 #include <variables.h>
 #include "shell.h"
+#include <errno.h>
 
 extern int yyparse();
 
@@ -81,10 +82,19 @@ void replace_env_variables(char **str) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
+void rediract_logs(char * filename) {
+    FILE * fp = fopen(filename, "a");
+    if (fp == NULL) {
+        log_error("Nie udalo sie przekierowac logow do pliku: %s", strerror(errno));
+    } else {
+        log_set_fp(fp);
+        log_set_quiet(1);
+    }
+}
+
 int main(int argc, char **argv, char *envp[]) {
 
-    // FILE * fp = fopen("log.txt", "a");
-    // og_set_fp(fp);
+    rediract_logs("logs.txt");
 
     log_trace("Inicjalizacja shella");
     initShell();
