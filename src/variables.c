@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <task.h>
 #include "variables.h"
 
 // prywatna
@@ -58,6 +59,14 @@ void set_variable(char *name, char *d) {
 }
 
 char *get_variable(char *name) {
+    if (strcmp(name, "?") == 0) {
+        if (last_process_status == NULL) {
+            return "0";
+        }
+        else
+            return last_process_status;
+    }
+
     char *var = getenv(name);
     if (var != NULL) {
         return var;

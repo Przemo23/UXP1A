@@ -44,6 +44,7 @@ void initShell() {
 
     before_redirection_stdin = -1;
     before_redirection_stdout = -1;
+    last_process_status = NULL;
 }
 
 void print_prompt() {
