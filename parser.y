@@ -28,11 +28,6 @@
 %token PIPE
 %token EQUALS
 
-%token PWD_CMD
-%token ECHO_CMD
-%token CD_CMD
-%token EXPORT_CMD
-
 %token <char_pointer_type> VARNAME
 %token <char_pointer_type> WORD
 %token <char_pointer_type> STRING
@@ -43,22 +38,14 @@ input:
   	assignment_sequence {
 		log_trace("assignment_sequence");
 	}
-	built_in_operation {
-		log_trace("built_in_operation");
-	}
-  	| built_in_operation PIPE task {
-		log_trace("built_in_operation PIPE task");
-	}
   	| task redirection {
   		if ($2 == 0){
-			log_trace("runTask();");
 			run_task();
   		}
 		free_process_list();
 		reset_rediractions();
 	}
 	| task {
-		log_trace("runTask();");
 		run_task();
 		free_process_list();
         }
@@ -76,28 +63,6 @@ task:
 		free(s);
 		add_process_to_task($1);
 		list_free($1);
-	}
-
-built_in_operation:
-  	PWD_CMD {
-		log_trace("pwd();");
-		pwd_cmd();
-	}
-  	| ECHO_CMD text	{
-		log_trace("echo(%s);", $2);
-		echo_cmd($2);
-	}
-  	| CD_CMD text {
-		log_trace("cd(%s);", $2);
-		cd_cmd($2);
-	}
-  	| EXPORT_CMD {
-		log_trace("export();");
-		// TODO
-	}
-	| EXPORT_CMD assignment {
-		log_trace("export(%s)",$2);
-		// TODO
 	}
 
 text_sequence:
