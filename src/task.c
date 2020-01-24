@@ -74,7 +74,7 @@ bool run_builtin(Proc *proc) {
         pwd_cmd();
         return true;
     } else if (strcmp(proc->argv[0], "cd") == 0) {
-        cd_cmd(proc->argv[1]);
+        cd_cmd(proc->argv);
         return true;
     } else if (strcmp(proc->argv[0], "echo") == 0) {
         echo_cmd(proc->argv);
