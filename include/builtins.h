@@ -17,4 +17,6 @@ void cd_cmd(char *fileDir);
 
 void echo_cmd(char *buf);
 
+void export_cmd(char **argv);
+
 #endif //UXP1A_BUILTINS_H

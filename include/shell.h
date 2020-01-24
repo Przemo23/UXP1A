@@ -29,6 +29,7 @@ pid_t shellPID;
 int terminalFD;
 // przechowuje ustawienia terminala
 struct termios terminalModes;
+// zmiene eksporotwane, ustawiane poprzez getenv i setenv
 
 
 // nazwa użytkownika

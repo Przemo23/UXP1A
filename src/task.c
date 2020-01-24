@@ -80,6 +80,9 @@ bool run_builtin(Proc *proc) {
     } else if (strcmp(proc->argv[0], "echo") == 0) {
         echo_cmd(proc->argv[1]);
         return true;
+    } else if (strcmp(proc->argv[0], "export") == 0) {
+        export_cmd(proc->argv);
+        return true;
     } else if (strcmp(proc->argv[0], "exit") == 0) {
         exit(0);
     }
@@ -185,7 +188,7 @@ void run_task() {
     }
 
     if(tcsetpgrp(terminalFD, shellPID ) == - 1){
-        log_error("Nie udalo sie przeniesc procesu do foreground: %s", strerror(errno));
+        log_trace("Nie udalo sie przeniesc procesu do foreground, mozliwe ze juz bylismy na fg: %s", strerror(errno));
     }
 }
 
