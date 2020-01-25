@@ -3,9 +3,9 @@
 %}
 
 var   [a-zA-Z_]+[a-zA-Z0-9\_]*
-wrd   [a-zA-Z0-9\.\_\-\/\\\~]+
-str   [\'][a-zA-Z0-9\.\_\-\/\$\`\=\ \\\"]*[\'\~]
-str2  [\"][a-zA-Z0-9\.\_\-\/\$\`\=\ \\]*[\"\~]
+wrd   [a-zA-Z0-9\:\.\_\-\/\\\~]+
+str   [\'][a-zA-Z0-9\:\.\_\-\/\$\`\=\ \\\"]*[\'\~]
+str2  [\"][a-zA-Z0-9\:\.\_\-\/\$\`\=\ \\]*[\"\~]
 
 %%
 "<"               { return REDIRECTION_IN; }
@@ -19,5 +19,6 @@ str2  [\"][a-zA-Z0-9\.\_\-\/\$\`\=\ \\]*[\"\~]
 {str2}            { char * s = strdup(yytext+1); s[strlen(s)-1] ='\0'; yylval.char_pointer_type = s;  return STRING; }
 
 .                 {}
+[ \t\r\n]   ;
 
 %%
