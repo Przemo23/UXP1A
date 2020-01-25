@@ -172,7 +172,7 @@ int main(int argc, char **argv, char ** env) {
                     cmd_q_el = malloc(sizeof(Cmd_queue));
                     cmd_q_el->cmd = malloc(sizeof(char) * (buffer_cmd_pos + 1));
                     strncpy(cmd_q_el->cmd, cmd_buffer, buffer_cmd_pos);
-                    cmd_q_el->cmd[buffer_cmd_pos + 1] = '\0';
+                    cmd_q_el->cmd[buffer_cmd_pos] = '\0';
                     cmd_q_el->result_insert_element = NULL;
                     cmd_queue_append(cmd_q_el, &cmds_tail, &cmds_head);
                     cmds_tail = cmd_q_el;
@@ -220,7 +220,7 @@ int main(int argc, char **argv, char ** env) {
                     cmd_q_el = malloc(sizeof(Cmd_queue));
                     cmd_q_el->cmd = malloc(sizeof(char) * (backquote_buffer_cmd_pos + 1));
                     strncpy(cmd_q_el->cmd, backquote_buffer, backquote_buffer_cmd_pos);
-                    cmd_q_el->cmd[backquote_buffer_cmd_pos + 1] = '\0';
+                    cmd_q_el->cmd[backquote_buffer_cmd_pos] = '\0';
                     cmd_queue_append(cmd_q_el, &cmds_tail, &cmds_head);
                     cmds_tail = cmd_q_el;
 
