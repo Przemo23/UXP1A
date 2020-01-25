@@ -22,10 +22,9 @@ void initShell() {
     log_trace("Pobrano nazwe hosta: %s", host);
     log_trace("Session id:%d", getsid(0));
 
-    struct sigaction act;
+    struct sigaction act = {0};
     act.sa_handler = SIG_IGN; // ign - ignore
     act.sa_flags = 0;
-
     // shell ignoruje sygnaly zwiazane z terminalem
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGQUIT, &act, NULL);

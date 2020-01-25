@@ -42,7 +42,7 @@ char * last_process_status;
 
 pid_t pgid;
 
-void reset_rediractions();
+void reset_redirections();
 
 // dodaje proces do listy procesow
 void add_process_to_task(List_node * node);

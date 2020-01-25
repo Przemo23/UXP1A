@@ -21,7 +21,7 @@ void run_program(Proc *proc) {
         }
     }
 
-    struct sigaction act;
+    struct sigaction act = {0};
     act.sa_handler = SIG_DFL; // dfl - default
     act.sa_flags = 0;
 
@@ -97,7 +97,7 @@ void run_task() {
     log_trace("uruchamiam task: %s", log);
     free(log);
 
-    int fd[2];
+    int fd[2] = {0,0};
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
 
     for (Proc *tmp = proc_head; tmp != NULL; tmp = tmp->next) {
