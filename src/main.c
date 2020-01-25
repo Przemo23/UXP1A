@@ -237,7 +237,7 @@ int main(int argc, char **argv, char ** env) {
             }
         }
 
-        if(first_backquote_found)
+        if(first_backquote_found || rewrite)
             parse_error = 1;
         if(parse_error)
             puts("syntax error");
