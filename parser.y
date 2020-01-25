@@ -163,6 +163,8 @@ assignment:
  	VARNAME EQUALS text {
 		log_trace("set_variable(%s,%s)",$1,$3);
 		set_variable($1,$3);
+		free($1);
+		free($3);
 		$$=$1;
 	}
 text:
@@ -175,7 +177,8 @@ text:
 		strcat(s,$1);
 		strcat(s,"=");
 		strcat(s,$3);
-		free_me = s;
+		free($1);
+		free($3);
 		$$ = s;
 	}
 
