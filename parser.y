@@ -77,10 +77,12 @@ text_sequence:
  	text {
  		// log_trace("Inicjuję liste:%s", $1);
 		$$ = list_init($1);
+		free($1);
 	}
   	| text text_sequence {
 		// log_trace("Dodaje do listy:%s", $1);
 		$$ = list_add($2, $1);
+		free($1);
 	}
 
 redirection:
