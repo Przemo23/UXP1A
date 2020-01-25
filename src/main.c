@@ -151,7 +151,7 @@ int main(int argc, char **argv, char ** env) {
         Cmd_queue * cmd_q_el;
         unsigned char first_backquote_found = 0;
         unsigned buffer_cmd_pos = 0, backquote_buffer_cmd_pos = 0;
-        char * cmd_buffer = malloc(sizeof(line)), * backquote_buffer = malloc(sizeof(line));
+        char * cmd_buffer = malloc(sizeof(char) * strlen(line)), * backquote_buffer = malloc(sizeof(char) * strlen(line));
         Backquote_parent_command_queue * bquote_head = NULL;
 
         unsigned char rewrite = 0;
@@ -222,7 +222,14 @@ int main(int argc, char **argv, char ** env) {
                     strncpy(cmd_q_el->cmd, backquote_buffer, backquote_buffer_cmd_pos);
                     cmd_q_el->cmd[backquote_buffer_cmd_pos] = '\0';
                     cmd_queue_append(cmd_q_el, &cmds_tail, &cmds_head);
+                    cmd_q_el->result_insert_pos = buffer_cmd_pos;
                     cmds_tail = cmd_q_el;
+
+                    Backquote_parent_command_queue * bq_temp = NULL;
+                    bq_temp = malloc(sizeof(Backquote_parent_command_queue));
+                    bq_temp->element = cmd_q_el;
+                    bq_temp->next = bquote_head;
+                    bquote_head = bq_temp;
 
                     backquote_buffer_cmd_pos = 0;
                 }
