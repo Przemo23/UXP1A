@@ -22,13 +22,6 @@ void initShell() {
     log_trace("Pobrano nazwe hosta: %s", host);
     log_trace("Session id:%d", getsid(0));
 
-    // todo ustawic wszystkie zmienne z envp zamiast tylko tych 4
-    set_variable("PATH", getenv("PATH"));
-    set_variable("HOME", getenv("HOME"));
-    set_variable("USER", getenv("USER"));
-    set_variable("PWD", getenv("PWD"));
-
-
     struct sigaction act;
     act.sa_handler = SIG_IGN; // ign - ignore
     act.sa_flags = 0;
