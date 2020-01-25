@@ -87,7 +87,7 @@ text_sequence:
 
 redirection:
 	REDIRECTION_IN text {
-		int in = open($2, O_RDWR, 00666);
+		int in = open($2, O_RDONLY, 00666);
 		if (in < 0){
 			printf("%s: Nie ma takiego pliku\n", $2);
 			$$ = -1;
@@ -99,7 +99,7 @@ redirection:
 		}
 	}
 	|REDIRECTION_OUT text {
-		int out = open($2, O_RDWR | O_CREAT | O_TRUNC, 00666);
+		int out = open($2, O_WRONLY | O_CREAT | O_TRUNC, 00666);
 		if (out < 0){
 			printf("%s: Nie mozna otworzyc pliku\n", $2);
 			$$ = -1;
@@ -111,8 +111,8 @@ redirection:
 		}
 	}
 	|REDIRECTION_IN text REDIRECTION_OUT text {
-		int in = open($2, O_RDWR, 00666);
-		int out = open($4, O_RDWR | O_CREAT | O_TRUNC, 00666);
+		int in = open($2, O_RDONLY, 00666);
+		int out = open($4, O_WRONLY | O_CREAT | O_TRUNC, 00666);
 		if (in < 0){
 			printf("%s: Nie ma takiego pliku\n", $2);
 			$$ = -1;
@@ -131,8 +131,8 @@ redirection:
 		}
 	}
 	|REDIRECTION_OUT text REDIRECTION_IN text {
-		int in = open($4, O_RDWR, 00666);
-		int out = open($2, O_RDWR | O_CREAT | O_TRUNC, 00666);
+		int in = open($4, O_RDONLY, 00666);
+		int out = open($2, O_WRONLY | O_CREAT | O_TRUNC, 00666);
 		if (in < 0){
 			printf("%s: Nie ma takiego pliku\n", $4);
 			$$ = -1;
