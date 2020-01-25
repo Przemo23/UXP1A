@@ -50,9 +50,6 @@ void initShell() {
     last_process_status = NULL;
 }
 
-
-
-
 void print_prompt() {
 
     printf(ANSI_BOLD ANSI_FG_GREEN "%s@%s" ANSI_RESET, user, host);

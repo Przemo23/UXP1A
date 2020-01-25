@@ -172,7 +172,6 @@ void run_task() {
             continue;
         }
 
-
         int status = 0;
         log_trace("Czekam na proces o pidzie %d", tmp->pid);
 
@@ -194,8 +193,8 @@ void run_task() {
 
     if(tcsetpgrp(terminalFD, shellPID ) == - 1){
         log_trace("Nie udalo sie przeniesc procesu do foreground, mozliwe ze juz bylismy na fg: %s", strerror(errno));
-
     }
+
     fflush(stdout);
     fflush(stderr);
 }

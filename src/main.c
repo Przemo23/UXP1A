@@ -2,7 +2,6 @@
 // Created by maciej on 17.01.2020.
 //
 
-
 #include <log.h>
 #include <variables.h>
 #include "shell.h"
@@ -311,6 +310,7 @@ int main(int argc, char **argv, char ** env) {
                             free(temp2);
                         }
                     }
+                    strncat(resultant_cmd, (cmds_head->cmd) + base_str_pos, strlen(cmds_head->cmd) - base_str_pos);
                     free(cmds_head->cmd);
                     cmds_head->cmd = resultant_cmd;
                 }
