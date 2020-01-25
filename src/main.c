@@ -323,8 +323,10 @@ int main(int argc, char **argv, char ** env) {
                     dup2(previous_stdout, STDOUT_FILENO);
                     close(previous_stdout);
                     char result[4096];
-                    while (read(fd[0], result, sizeof(result)) != 0) {}
+                    unsigned chars_read = 0, a = 0;
+                    while (a = read(fd[0], result, sizeof(result) - 1)) {chars_read += a;}
                     close(fd[0]);
+                    result[chars_read] = '\0';
                     if(!cmd_result_head_element)
                         cmd_result_head_element = cmds_head->result_insert_element;
                     Cmd_result_queue * temp = cmd_result_head, *temp2 = NULL;

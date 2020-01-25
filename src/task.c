@@ -17,7 +17,7 @@ void run_program(Proc *proc) {
     if (!pgid) {
         pgid = pid;
         if(setpgid(pid, pgid == -1)){
-            log_error("NIe udalo sie setpgid: %d", strerror(errno));
+            log_error("Nie udalo sie setpgid: %d", strerror(errno));
         }
     }
 
@@ -196,6 +196,8 @@ void run_task() {
         log_trace("Nie udalo sie przeniesc procesu do foreground, mozliwe ze juz bylismy na fg: %s", strerror(errno));
 
     }
+    fflush(stdout);
+    fflush(stderr);
 }
 
 // prywatna
