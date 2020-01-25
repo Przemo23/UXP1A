@@ -375,6 +375,8 @@ int main(int argc, char **argv, char ** env) {
         }
         if(finish_execution)
             break;
+        if(parse_error)
+            puts("syntax error");
         parse_error = 0;
     }
 }

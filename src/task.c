@@ -105,7 +105,6 @@ void run_task() {
         int our_stdin = dup(STDIN_FILENO);
         int our_stdout = dup(STDOUT_FILENO);
 
-
         // nie pierwszy
         if (tmp != proc_head) {
             // otwieramy jako stdin wyjscie z poprzedniego potoku
