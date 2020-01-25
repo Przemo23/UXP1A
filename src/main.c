@@ -126,6 +126,108 @@ void redirect_logs(char * filename) {
     }
 }
 
+Cmd_result_queue * cmd_result_head;
+Cmd_queue * cmd_result_dest;
+
+void execute_cmds(Cmd_queue ** cmds_head, Cmd_queue ** cmds_tail) {
+    Cmd_queue * cmd_q_el;
+    while(*cmds_head != NULL) {
+        if(parse_error == 0 && !finish_execution) {
+            replace_env_variables(&((*cmds_head)->cmd));
+
+            int previous_stdout = 1, fd[2];
+            if ((*cmds_head)->result_insert_element != NULL) {
+                previous_stdout = dup(STDOUT_FILENO);
+                pipe(fd);
+                dup2(fd[1], STDOUT_FILENO);
+                close(fd[1]);
+            }
+
+            if(*cmds_head == cmd_result_dest) {
+                unsigned size = strlen((*cmds_head)->cmd);
+                Cmd_result_queue * temp = cmd_result_head;
+                while(temp) {
+                    size += strlen(temp->str);
+                    temp = temp -> next;
+                }
+                char * resultant_cmd = calloc(1, sizeof(char) * (size + 1));
+                unsigned base_str_pos = 0;
+                while(cmd_result_head != NULL) {
+                    Cmd_result_queue * temp2 = cmd_result_head;
+                    temp = cmd_result_head;
+                    unsigned first_insert = UINT_MAX;
+                    while(temp) {
+                        if(temp->insert_pos < first_insert) {
+                            temp2 = temp;
+                            first_insert = temp->insert_pos;
+                        }
+                        temp = temp -> next;
+                    }
+
+                    strncat(resultant_cmd, ((*cmds_head)->cmd) + base_str_pos, first_insert - base_str_pos);
+                    base_str_pos = first_insert;
+                    strncat(resultant_cmd, temp2->str, strlen(temp2->str));
+
+                    if(cmd_result_head == temp2) {
+                        cmd_result_head = temp2 -> next;
+                        free(temp2->str);
+                        free(temp2);
+                    }
+                    else {
+                        while (temp->next != temp2)
+                            temp = temp->next;
+                        temp->next = temp2->next;
+                        free(temp2->str);
+                        free(temp2);
+                    }
+                }
+                strncat(resultant_cmd, ((*cmds_head)->cmd) + base_str_pos, strlen((*cmds_head)->cmd) - base_str_pos);
+                free((*cmds_head)->cmd);
+                (*cmds_head)->cmd = resultant_cmd;
+            }
+
+            log_trace("Parsuję komendę: %s", (*cmds_head) -> cmd);
+            YY_BUFFER_STATE buffer = yy_scan_string((*cmds_head) -> cmd);
+            yyparse();
+
+            if((*cmds_head)->result_insert_element != NULL) {
+                dup2(previous_stdout, STDOUT_FILENO);
+                close(previous_stdout);
+                char result[4096];
+                unsigned chars_read = 0, a = 0;
+                while ((a = read(fd[0], result, sizeof(result) - 1))) {chars_read += a;}
+                close(fd[0]);
+                result[chars_read] = '\0';
+                if(!cmd_result_dest)
+                    cmd_result_dest = (*cmds_head)->result_insert_element;
+                Cmd_result_queue * temp = cmd_result_head, *temp2 = NULL;
+                while(temp != NULL) {
+                    temp2 = temp;
+                    temp = temp->next;
+                }
+                temp = malloc(sizeof(Cmd_result_queue));
+                temp->next = NULL;
+                temp->str = malloc(sizeof(char) * (strlen(result) + 1));
+                snprintf(temp->str, 4096, "%s", result);
+                temp->str[strlen(temp->str) - 1] = '\0';
+                temp->insert_pos = (*cmds_head)->result_insert_pos;
+                if(cmd_result_head)
+                    temp2->next = temp;
+                else
+                    cmd_result_head = temp;
+            }
+
+            yy_delete_buffer(buffer);
+        }
+        if(*cmds_head == * cmds_tail)
+            *cmds_tail = NULL;
+        cmd_q_el = *cmds_head;
+        *cmds_head = (*cmds_head) -> next;
+        free(cmd_q_el->cmd);
+        free(cmd_q_el);
+    }
+}
+
 int main(int argc, char **argv, char ** env) {
 
     redirect_logs("logs.txt");
@@ -186,6 +288,8 @@ int main(int argc, char **argv, char ** env) {
                         free(bq_temp2);
                     }
                     bquote_head = NULL;
+
+                    execute_cmds(&cmds_head, &cmds_tail);
                 }
                 else
                     cmd_buffer[buffer_cmd_pos++] = line[i];
@@ -231,6 +335,8 @@ int main(int argc, char **argv, char ** env) {
                     bquote_head = bq_temp;
 
                     backquote_buffer_cmd_pos = 0;
+
+                    execute_cmds(&cmds_head, &cmds_tail);
                 }
                 else
                     backquote_buffer[backquote_buffer_cmd_pos++] = line[i];
@@ -257,102 +363,8 @@ int main(int argc, char **argv, char ** env) {
         free(cmd_buffer);
         free(backquote_buffer);
 
-        Cmd_result_queue * cmd_result_head = NULL;
-        Cmd_queue * cmd_result_head_element = NULL;
+        execute_cmds(&cmds_head, &cmds_tail);
 
-        while(cmds_head != NULL) {
-            if(parse_error == 0 && !finish_execution) {
-                replace_env_variables(&(cmds_head->cmd));
-
-                int previous_stdout = 1, fd[2];
-                if (cmds_head->result_insert_element != NULL) {
-                    previous_stdout = dup(STDOUT_FILENO);
-                    pipe(fd);
-                    dup2(fd[1], STDOUT_FILENO);
-                    close(fd[1]);
-                }
-
-                if(cmds_head == cmd_result_head_element) {
-                    unsigned size = strlen(cmds_head->cmd);
-                    Cmd_result_queue * temp = cmd_result_head;
-                    while(temp) {
-                        size += strlen(temp->str);
-                        temp = temp -> next;
-                    }
-                    char * resultant_cmd = calloc(1, sizeof(char) * (size + 1));
-                    unsigned base_str_pos = 0;
-                    while(cmd_result_head != NULL) {
-                        Cmd_result_queue * temp2 = cmd_result_head;
-                        temp = cmd_result_head;
-                        unsigned first_insert = UINT_MAX;
-                        while(temp) {
-                            if(temp->insert_pos < first_insert) {
-                                temp2 = temp;
-                                first_insert = temp->insert_pos;
-                            }
-                            temp = temp -> next;
-                        }
-
-                        strncat(resultant_cmd, (cmds_head->cmd) + base_str_pos, first_insert - base_str_pos);
-                        base_str_pos = first_insert;
-                        strncat(resultant_cmd, temp2->str, strlen(temp2->str));
-
-                        if(cmd_result_head == temp2) {
-                            cmd_result_head = temp2 -> next;
-                            free(temp2->str);
-                            free(temp2);
-                        }
-                        else {
-                            while (temp->next != temp2)
-                                temp = temp->next;
-                            temp->next = temp2->next;
-                            free(temp2->str);
-                            free(temp2);
-                        }
-                    }
-                    strncat(resultant_cmd, (cmds_head->cmd) + base_str_pos, strlen(cmds_head->cmd) - base_str_pos);
-                    free(cmds_head->cmd);
-                    cmds_head->cmd = resultant_cmd;
-                }
-
-                log_trace("Parsuję komendę: %s", cmds_head -> cmd);
-                YY_BUFFER_STATE buffer = yy_scan_string(cmds_head -> cmd);
-                yyparse();
-
-                if(cmds_head->result_insert_element != NULL) {
-                    dup2(previous_stdout, STDOUT_FILENO);
-                    close(previous_stdout);
-                    char result[4096];
-                    unsigned chars_read = 0, a = 0;
-                    while (a = read(fd[0], result, sizeof(result) - 1)) {chars_read += a;}
-                    close(fd[0]);
-                    result[chars_read] = '\0';
-                    if(!cmd_result_head_element)
-                        cmd_result_head_element = cmds_head->result_insert_element;
-                    Cmd_result_queue * temp = cmd_result_head, *temp2 = NULL;
-                    while(temp != NULL) {
-                        temp2 = temp;
-                        temp = temp->next;
-                    }
-                    temp = malloc(sizeof(Cmd_result_queue));
-                    temp->next = NULL;
-                    temp->str = malloc(sizeof(char) * (strlen(result) + 1));
-                    snprintf(temp->str, 4096, "%s", result);
-                    temp->str[strlen(temp->str) - 1] = '\0';
-                    temp->insert_pos = cmds_head->result_insert_pos;
-                    if(cmd_result_head)
-                        temp2->next = temp;
-                    else
-                        cmd_result_head = temp;
-                }
-
-                yy_delete_buffer(buffer);
-            }
-            cmd_q_el = cmds_head;
-            cmds_head = cmds_head -> next;
-            free(cmd_q_el->cmd);
-            free(cmd_q_el);
-        }
         free(line);
         while(cmd_result_head != NULL) {
             Cmd_result_queue * temp = cmd_result_head;
