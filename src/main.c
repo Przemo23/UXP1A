@@ -184,6 +184,7 @@ void execute_cmds(Cmd_queue ** cmds_head, Cmd_queue ** cmds_tail) {
                 strncat(resultant_cmd, ((*cmds_head)->cmd) + base_str_pos, strlen((*cmds_head)->cmd) - base_str_pos);
                 free((*cmds_head)->cmd);
                 (*cmds_head)->cmd = resultant_cmd;
+                cmd_result_dest = NULL;
             }
 
             log_trace("Parsuję komendę: %s", (*cmds_head) -> cmd);
