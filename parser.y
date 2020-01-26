@@ -183,18 +183,19 @@ text:
 	}
 
 text1:
-	WORD {
-		// log_trace("WORD"); $$ = $1;
-	}
-	| VARNAME {
-		// log_trace("VARNAME %s", $1); $$ = $1;
-	}
-	| STRING {
+	STRING {
 		// log_trace("STRING"); $$ = $1;
 	}
 	| STRING2 {
 		// log_trace("STRING2"); $$ = $1;
 	}
+	| WORD {
+		// log_trace("WORD"); $$ = $1;
+	}
+	| VARNAME {
+		// log_trace("VARNAME %s", $1); $$ = $1;
+	}
+
 %%
 
 void yyerror (char const *s) {
