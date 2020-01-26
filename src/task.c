@@ -83,6 +83,9 @@ bool run_builtin(Proc *proc) {
     } else if (strcmp(proc->argv[0], "export") == 0) {
         export_cmd(proc->argv);
         return true;
+    } else if (strcmp(proc->argv[0], "unset") == 0) {
+        unset_cmd(proc->argv);
+        return true;
     } else if (strcmp(proc->argv[0], "exit") == 0) {
         exit(0);
     }

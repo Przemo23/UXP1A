@@ -6,8 +6,6 @@
 #include <shell.h>
 #include <variables.h>
 
-// todo zmienic wszystkie builtiny tak zeby przyjmowaly liste argumentow (argv)
-
 void pwd_cmd() {
 
     char* cwd = getcwd(NULL, 0);
@@ -79,5 +77,12 @@ void export_cmd(char **argv) {
             strcpy(m,*tmp);
             putenv(m);
         }
+    }
+}
+
+void unset_cmd(char **argv) {
+    char ** tmp = argv + 1;
+    for (; *tmp != NULL; tmp++) {
+        list_remove(*tmp);
     }
 }

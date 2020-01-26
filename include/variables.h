@@ -23,4 +23,6 @@ void set_variable(char *name, char *d);
 
 char *get_variable(char *name);
 
+void list_remove(char *name);
+
 #endif //UXP1A_VARIABLES_H

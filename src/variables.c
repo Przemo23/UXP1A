@@ -79,3 +79,32 @@ char *get_variable(char *name) {
         return "";
     }
 }
+
+void list_remove(char *name)
+{
+    unsetenv(name);
+    if(name == NULL || variables_head == NULL)
+        return;
+
+    Node* tmp = variables_head;
+    Node* toRem;
+
+    if(strcmp(tmp->name, name) == 0)
+    {
+        variables_head = tmp->next;
+        free(tmp);
+        return;
+    }
+
+    while(tmp->next)
+    {
+        if(strcmp(tmp->next->name, name) == 0)
+        {
+            toRem = tmp->next;
+            tmp->next = tmp->next->next;
+            free(toRem);
+            return;
+        }
+        tmp = tmp->next;
+    }
+}

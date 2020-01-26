@@ -20,4 +20,6 @@ void echo_cmd(char **argv);
 
 void export_cmd(char **argv);
 
+void unset_cmd(char **argv);
+
 #endif //UXP1A_BUILTINS_H
