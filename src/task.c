@@ -100,7 +100,7 @@ void run_task() {
     log_trace("uruchamiam task: %s", log);
     free(log);
 
-    int fd[2] = {0,0};
+    int fd[2];
     int previous = -1; // wyjscie z poprzedniego procesu w tasku
 
     for (Proc *tmp = proc_head; tmp != NULL; tmp = tmp->next) {
@@ -129,7 +129,8 @@ void run_task() {
             pid = fork();
             if (pid == 0) {
                 // zamykamy wyjscie utworzonego przez nas potoku, bo z niego bedzie czytal nastepny proces
-                close(fd[0]);
+                if(tmp->next)
+                    close(fd[0]);
                 // zamykamy deskryptory do zapamietaniu stanu macierzystego
                 close(our_stdin);
                 close(our_stdout);
