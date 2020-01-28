@@ -196,7 +196,7 @@ int main(int argc, char **argv, char ** env) {
                         rewrite = (rewrite == 1) ? 0 : 1;
                     backquote_buffer[backquote_buffer_cmd_pos++] = line[i];
                 }
-                if(line[i] == '`') {
+                else if(line[i] == '`') {
                     first_backquote_found = 0;
 
                     cmd_q_el = malloc(sizeof(Cmd_queue));
