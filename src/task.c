@@ -31,7 +31,7 @@ void run_program(Proc *proc) {
     sigaction(SIGTTOU, &act, NULL);
   
     execvp(proc->argv[0], proc->argv);
-    printf("Nie udało się uruchomić zadania %s\n", proc->argv[0]);
+    printf("Nie udalo sie uruchomic zadania %s\n", proc->argv[0]);
     exit(7);
 }
 

@@ -329,6 +329,8 @@ int main(int argc, char **argv, char ** env) {
                     while (a = read(fd[0], result, sizeof(result) - 1)) {chars_read += a;}
                     close(fd[0]);
                     result[chars_read] = '\0';
+                    if(parse_error == 1)
+                        printf("%s", result);
                     if(!cmd_result_head_element)
                         cmd_result_head_element = cmds_head->result_insert_element;
                     Cmd_result_queue * temp = cmd_result_head, *temp2 = NULL;
